@@ -5,6 +5,7 @@ import com.vaadin.flow.cdi.server.CdiVaadinServlet;
 import com.vaadin.flow.cdi.server.CdiVaadinServletService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.di.Instantiator;
+import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.server.VaadinServletService;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Assert;
@@ -18,6 +19,8 @@ import javax.inject.Singleton;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -65,6 +68,13 @@ public class InstantiatorTest {
                 instantiator.createRouteTarget(RouteTarget2.class, null));
     }
 
+    @Test
+    public void getI18NProvider_i18nProviderIsABean_i18nProviderIsAvailable() {
+        Assert.assertNotNull(instantiator.getI18NProvider());
+        Assert.assertEquals(I18NTestProvider.class,
+                instantiator.getI18NProvider().getClass());
+    }
+
     public static class RouteTarget1 extends Div {
 
     }
@@ -73,4 +83,25 @@ public class InstantiatorTest {
     public static class RouteTarget2 extends Div {
 
     }
+
+    public static class I18NTestProvider implements I18NProvider {
+
+        @Override
+        public List<Locale> getProvidedLocales() {
+            return null;
+        }
+
+        @Override
+        public String getTranslation(String key, Object... params) {
+            return null;
+        }
+
+        @Override
+        public String getTranslation(String key, Locale locale,
+                                     Object... params) {
+            return null;
+        }
+
+    }
+
 }
