@@ -1,9 +1,11 @@
 package com.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.cdi.internal.CdiInstantiator;
+import com.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
+import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 
@@ -12,6 +14,7 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CdiVaadinServletService extends VaadinServletService {
@@ -23,6 +26,7 @@ public class CdiVaadinServletService extends VaadinServletService {
                                    BeanManager beanManager) {
         super(servlet, configuration);
         this.beanManager = beanManager;
+        addSessionDestroyListener(this::sessionDestroy);
     }
 
     @Override
@@ -58,6 +62,25 @@ public class CdiVaadinServletService extends VaadinServletService {
         return (Instantiator) beanManager.getReference(bean,
                 Instantiator.class,
                 creationalContext);
+    }
+
+    private static Logger getLogger() {
+        return Logger.getLogger(CdiVaadinServletService.class
+                .getCanonicalName());
+    }
+
+    private void sessionDestroy(SessionDestroyEvent event) {
+        if (VaadinSessionScopedContext.guessContextIsUndeployed()) {
+            // Happens on tomcat when it expires sessions upon undeploy.
+            // beanManager.getPassivationCapableBean returns null for passivation id,
+            // so we would get an NPE from AbstractContext.destroyAllActive
+            getLogger().warning("VaadinSessionScoped context does not exist. " +
+                    "Maybe application is undeployed." +
+                    " Can't destroy VaadinSessionScopedContext.");
+            return;
+        }
+        getLogger().fine("VaadinSessionScopedContext destroy");
+        VaadinSessionScopedContext.destroy(event.getSession());
     }
 
 }
