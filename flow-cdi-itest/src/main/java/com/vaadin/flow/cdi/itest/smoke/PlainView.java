@@ -1,4 +1,4 @@
-package com.vaadin.flow.cdi.it.smoke;
+package com.vaadin.flow.cdi.itest.smoke;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;

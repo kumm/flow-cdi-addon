@@ -1,7 +1,7 @@
-package com.vaadin.flow.cdi.it.smoke;
+package com.vaadin.flow.cdi.itest.smoke;
 
-import com.vaadin.flow.cdi.it.AbstractCDIIntegrationTest;
-import com.vaadin.flow.cdi.it.ArchiveProvider;
+import com.vaadin.flow.cdi.itest.AbstractCDIIntegrationTest;
+import com.vaadin.flow.cdi.itest.ArchiveProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;

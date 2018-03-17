@@ -1,4 +1,4 @@
-package com.vaadin.flow.cdi.it;
+package com.vaadin.flow.cdi.itest;
 
 
 import org.jboss.arquillian.container.test.api.RunAsClient;

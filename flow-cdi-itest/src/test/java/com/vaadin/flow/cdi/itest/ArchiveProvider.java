@@ -1,4 +1,4 @@
-package com.vaadin.flow.cdi.it;
+package com.vaadin.flow.cdi.itest;
 
 import com.vaadin.flow.cdi.internal.VaadinExtension;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -45,7 +45,7 @@ public class ArchiveProvider {
                                 .withTransitivity().asFile())
                 .addAsLibraries(
                         pom.resolve(
-                                "org.apache.deltaspike.core:deltaspike-core-impl")
+                                "com.vaadin:flow-cdi-addon")
                                 .withTransitivity().asFile())
                 .addAsServiceProvider(Extension.class, VaadinExtension.class);
         if (emptyBeansXml) {

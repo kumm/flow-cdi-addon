@@ -19,7 +19,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 @RunWith(CdiTestRunner.class)
