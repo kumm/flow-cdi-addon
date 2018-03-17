@@ -10,18 +10,22 @@ import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 public class ArchiveProvider {
 
     public static WebArchive createWebArchive(String warName, Class... classes) {
-        return createWebArchive(warName, true, classes);
-    }
-
-    public static WebArchive createWebArchive(String warName,
-                                              boolean emptyBeansXml, Class... classes) {
-        WebArchive archive = base(warName, emptyBeansXml);
-        archive.addClasses(classes);
+        WebArchive archive = base(warName, classes)
+                .addAsWebInfResource(EmptyAsset.INSTANCE,
+                        ArchivePaths.create("beans.xml"))
+                .addAsWebInfResource(ArchiveProvider.class.getClassLoader()
+                        .getResource("web.xml"), "web.xml");
         System.out.println(archive.toString(true));
         return archive;
     }
 
-    private static WebArchive base(String warName, boolean emptyBeansXml) {
+    public static WebArchive createPlainWebArchive(String warName, Class... classes) {
+        WebArchive archive = base(warName, classes);
+        System.out.println(archive.toString(true));
+        return archive;
+    }
+
+    private static WebArchive base(String warName, Class... classes) {
         PomEquippedResolveStage pom = Maven.resolver()
                 .loadPomFromFile("pom.xml");
         WebArchive archive = ShrinkWrap
@@ -38,11 +42,7 @@ public class ArchiveProvider {
                 .addAsLibraries(
                         pom.resolve("com.vaadin:flow-cdi-addon")
                                 .withTransitivity().asFile());
-        if (emptyBeansXml) {
-            archive = archive.addAsWebInfResource(EmptyAsset.INSTANCE,
-                    ArchivePaths.create("beans.xml"));
-        }
-        return archive;
+        return archive.addClasses(classes);
     }
 
 }
