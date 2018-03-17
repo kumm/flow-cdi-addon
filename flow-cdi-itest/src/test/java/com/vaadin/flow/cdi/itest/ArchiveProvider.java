@@ -1,6 +1,5 @@
 package com.vaadin.flow.cdi.itest;
 
-import com.vaadin.flow.cdi.internal.VaadinExtension;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -8,13 +7,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 
-import javax.enterprise.inject.spi.Extension;
-
 public class ArchiveProvider {
-
-    private final static Class FRAMEWORK_CLASSES[] = new Class[] {
-            VaadinExtension.class
-    };
 
     public static WebArchive createWebArchive(String warName, Class... classes) {
         return createWebArchive(warName, true, classes);
@@ -33,7 +26,6 @@ public class ArchiveProvider {
                 .loadPomFromFile("pom.xml");
         WebArchive archive = ShrinkWrap
                 .create(WebArchive.class, warName + ".war")
-                .addClasses(FRAMEWORK_CLASSES)
                 .addAsLibraries(
                         pom.resolve("com.vaadin:flow-server")
                                 .withTransitivity().asFile())
@@ -44,10 +36,8 @@ public class ArchiveProvider {
                         pom.resolve("com.vaadin:flow-html-components")
                                 .withTransitivity().asFile())
                 .addAsLibraries(
-                        pom.resolve(
-                                "com.vaadin:flow-cdi-addon")
-                                .withTransitivity().asFile())
-                .addAsServiceProvider(Extension.class, VaadinExtension.class);
+                        pom.resolve("com.vaadin:flow-cdi-addon")
+                                .withTransitivity().asFile());
         if (emptyBeansXml) {
             archive = archive.addAsWebInfResource(EmptyAsset.INSTANCE,
                     ArchivePaths.create("beans.xml"));
