@@ -13,6 +13,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.enterprise.inject.New;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.function.Function;
 
@@ -30,6 +34,11 @@ abstract public class AbstractCDIIntegrationTest {
 
     protected void open(String url) {
         firstWindow.get(contextPath + url);
+        waitForClient();
+    }
+
+    protected void refresh() {
+        firstWindow.navigate().refresh();
         waitForClient();
     }
 
@@ -55,6 +64,24 @@ abstract public class AbstractCDIIntegrationTest {
                             "&& Vaadin !== null " +
                             "&& !Vaadin.Flow.clients[Object.keys(Vaadin.Flow.clients)[0]].isActive()");
         }
+    }
+
+    public void resetCounts() throws IOException {
+        slurp("?resetCounts");
+    }
+
+    public int getCount(String id) throws IOException {
+        String line = slurp("?getCount=" + id);
+        return Integer.parseInt(line);
+    }
+
+    private String slurp(String uri) throws IOException {
+        URL url = new URL(contextPath.toString()+uri);
+        InputStream is = url.openConnection().getInputStream();
+        BufferedReader reader = new BufferedReader( new InputStreamReader( is )  );
+        String line = reader.readLine();
+        reader.close();
+        return line;
     }
 
 }

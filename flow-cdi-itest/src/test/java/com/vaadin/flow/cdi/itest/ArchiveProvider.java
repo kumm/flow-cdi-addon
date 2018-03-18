@@ -14,7 +14,8 @@ public class ArchiveProvider {
                 .addAsWebInfResource(EmptyAsset.INSTANCE,
                         ArchivePaths.create("beans.xml"))
                 .addAsWebInfResource(ArchiveProvider.class.getClassLoader()
-                        .getResource("web.xml"), "web.xml");
+                        .getResource("web.xml"), "web.xml")
+                .addClasses(Counter.class, CounterFilter.class);
         System.out.println(archive.toString(true));
         return archive;
     }
