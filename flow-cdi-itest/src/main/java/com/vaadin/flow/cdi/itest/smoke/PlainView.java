@@ -3,10 +3,8 @@ package com.vaadin.flow.cdi.itest.smoke;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.page.BodySize;
 import com.vaadin.flow.router.Route;
 
-@BodySize(height = "100vh", width = "100vw")
 @Route("")
 public class PlainView extends Div {
 
