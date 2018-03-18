@@ -1,5 +1,7 @@
 package com.vaadin.flow.cdi.internal;
 
+import com.vaadin.flow.cdi.NormalUIScoped;
+import com.vaadin.flow.cdi.UIScoped;
 import com.vaadin.flow.cdi.VaadinSessionScoped;
 
 import javax.enterprise.event.Observes;
@@ -11,13 +13,23 @@ import java.util.logging.Logger;
 
 public class VaadinExtension implements Extension {
 
+    private UIScopedContext uiScopedContext;
+
     public void initializeContexts(@Observes AfterDeploymentValidation adv, BeanManager beanManager) {
-        getLogger().info("Vaadin extension...");
+        uiScopedContext.init(beanManager);
     }
 
     void afterBeanDiscovery(
             @Observes final AfterBeanDiscovery afterBeanDiscovery,
             final BeanManager beanManager) {
+        uiScopedContext = new UIScopedContext(beanManager);
+        afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
+                UIScoped.class));
+        afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
+                NormalUIScoped.class));
+        getLogger().info("UIScopedContext registered for Vaadin CDI");
+
+
         VaadinSessionScopedContext vaadinSessionScopedContext =
                 new VaadinSessionScopedContext(beanManager);
         afterBeanDiscovery.addContext(
