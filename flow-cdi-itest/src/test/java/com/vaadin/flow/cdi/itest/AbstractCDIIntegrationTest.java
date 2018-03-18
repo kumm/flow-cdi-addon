@@ -46,8 +46,17 @@ abstract public class AbstractCDIIntegrationTest {
         return firstWindow.findElement(By.id(id));
     }
 
+    protected WebElement findLink(String linkText) {
+        return firstWindow.findElement(By.linkText(linkText));
+    }
+
     protected void click(String id) {
         find(id).click();
+        waitForClient();
+    }
+
+    protected void follow(String linkText) {
+        findLink(linkText).click();
         waitForClient();
     }
 
