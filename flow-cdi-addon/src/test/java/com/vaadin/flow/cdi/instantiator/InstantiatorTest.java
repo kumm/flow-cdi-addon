@@ -1,12 +1,10 @@
 package com.vaadin.flow.cdi.instantiator;
 
 import com.vaadin.flow.cdi.internal.CdiInstantiator;
-import com.vaadin.flow.cdi.server.CdiVaadinServlet;
 import com.vaadin.flow.cdi.server.CdiVaadinServletService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.i18n.I18NProvider;
-import com.vaadin.flow.server.VaadinServletService;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,22 +12,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
 
 @RunWith(CdiTestRunner.class)
 public class InstantiatorTest {
 
     @Inject
-    CdiVaadinServlet servlet;
+    BeanManager beanManager;
 
     @Inject
     RouteTarget2 singleton;
@@ -37,22 +30,10 @@ public class InstantiatorTest {
     private Instantiator instantiator;
 
     @Before
-    public void setUp() throws Exception {
-        final ServletConfig servletConfig = Mockito.mock(ServletConfig.class);
-        final ServletContext servletContext = Mockito.mock(ServletContext.class);
-        Mockito.when(servletConfig.getInitParameterNames())
-                .thenReturn(Collections.emptyEnumeration());
-        Mockito.when(servletConfig.getServletContext())
-                .thenReturn(servletContext);
-        Mockito.when(servletContext.getInitParameterNames())
-                .thenReturn(Collections.emptyEnumeration());
-
-        servlet.init(servletConfig);
-        VaadinServletService service = servlet.getService();
-        assertThat(service, instanceOf(CdiVaadinServletService.class));
-
-        instantiator = service.getInstantiator();
-        assertThat(instantiator, instanceOf(CdiInstantiator.class));
+    public void setUp() {
+        instantiator = new CdiInstantiator(
+                Mockito.mock(CdiVaadinServletService.class),
+                beanManager);
     }
 
     @Test
