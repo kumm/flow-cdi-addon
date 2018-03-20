@@ -8,6 +8,7 @@ import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
+import org.apache.deltaspike.core.api.literal.AnyLiteral;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
@@ -34,7 +35,7 @@ public class CdiVaadinServletService extends VaadinServletService {
             throws ServiceException {
         Optional<Instantiator> spiInstantiator = super.loadInstantiators();
         List<Instantiator> cdiInstantiators = beanManager
-                .getBeans(Instantiator.class).stream()
+                .getBeans(Instantiator.class, new AnyLiteral()).stream()
                 .map(this::getInstantiatorReference)
                 .filter(instantiator -> instantiator.init(this))
                 .collect(Collectors.toList());

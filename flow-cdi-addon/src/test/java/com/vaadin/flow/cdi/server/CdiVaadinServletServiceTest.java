@@ -70,6 +70,7 @@ public class CdiVaadinServletServiceTest {
 
     @Before
     public void setUp() {
+        JavaSPIInstantiator.ENABLED = false;
         VaadinServlet servlet = mock(VaadinServlet.class);
         DeploymentConfiguration configuration = mock(DeploymentConfiguration.class);
         service = new CdiVaadinServletService(servlet, configuration, beanManager) {
