@@ -5,6 +5,8 @@ import com.vaadin.flow.cdi.server.CdiVaadinServletService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +19,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(CdiTestRunner.class)
 public class InstantiatorTest {
@@ -56,6 +60,15 @@ public class InstantiatorTest {
                 instantiator.getI18NProvider().getClass());
     }
 
+    @Test
+    public void getServiceInitListeners_springManagedBeanAndJavaSPI_bothClassesAreInStream() {
+        Set<?> set = instantiator.getServiceInitListeners()
+                .map(Object::getClass).collect(Collectors.toSet());
+
+        Assert.assertTrue(set.contains(TestVaadinServiceInitListener.class));
+        Assert.assertTrue(set.contains(JavaSPIVaadinServiceInitListener.class));
+    }
+
     public static class RouteTarget1 extends Div {
 
     }
@@ -81,6 +94,15 @@ public class InstantiatorTest {
         public String getTranslation(String key, Locale locale,
                                      Object... params) {
             return null;
+        }
+
+    }
+
+    public static class TestVaadinServiceInitListener
+            implements VaadinServiceInitListener {
+
+        @Override
+        public void serviceInit(ServiceInitEvent event) {
         }
 
     }
