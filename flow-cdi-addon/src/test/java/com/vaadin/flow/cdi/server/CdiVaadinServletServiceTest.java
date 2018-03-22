@@ -15,8 +15,13 @@ import org.junit.runner.RunWith;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
+import javax.inject.Qualifier;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.stream.Stream;
 
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,6 +66,14 @@ public class CdiVaadinServletServiceTest {
 
     @RequestScoped
     public static class TestInstantiatorA extends AbstractTestInstantiator {
+    }
+
+
+    @Qualifier
+    @Retention(RUNTIME)
+    @Target({METHOD, FIELD, PARAMETER, TYPE})
+    public @interface TestQualifier {
+
     }
 
     @RequestScoped
