@@ -1,6 +1,7 @@
 package com.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.server.VaadinServletService;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import static org.junit.Assert.assertThat;
 @RunWith(CdiTestRunner.class)
 public class CdiVaadinServletTest {
 
-    @Inject
     CdiVaadinServlet servlet;
 
     @Before
@@ -32,7 +32,8 @@ public class CdiVaadinServletTest {
                 .thenReturn(servletContext);
         Mockito.when(servletContext.getInitParameterNames())
                 .thenReturn(Collections.emptyEnumeration());
-
+        servlet = new CdiVaadinServlet();
+        BeanProvider.injectFields(servlet);
         servlet.init(servletConfig);
     }
 
