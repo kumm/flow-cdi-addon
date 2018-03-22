@@ -13,15 +13,7 @@ public class ArchiveProvider {
         WebArchive archive = base(warName, classes)
                 .addAsWebInfResource(EmptyAsset.INSTANCE,
                         ArchivePaths.create("beans.xml"))
-                .addAsWebInfResource(ArchiveProvider.class.getClassLoader()
-                        .getResource("web.xml"), "web.xml")
                 .addClasses(Counter.class, CounterFilter.class);
-        System.out.println(archive.toString(true));
-        return archive;
-    }
-
-    public static WebArchive createPlainWebArchive(String warName, Class... classes) {
-        WebArchive archive = base(warName, classes);
         System.out.println(archive.toString(true));
         return archive;
     }

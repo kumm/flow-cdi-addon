@@ -13,13 +13,15 @@ import static org.junit.Assert.assertThat;
 
 public class SmokeTest extends AbstractCDIIntegrationTest {
 
-    @Deployment(name = "plain")
-    public static WebArchive createPlainDeployment() {
-        return ArchiveProvider.createPlainWebArchive("plain-test", PlainView.class);
+    @Deployment(name = "noncdi")
+    public static WebArchive createCdiServletDisabledDeployment() {
+        return ArchiveProvider.createWebArchive("noncdi-test", CdiView.class)
+                .addAsWebInfResource(ArchiveProvider.class.getClassLoader()
+                        .getResource("disablecdi-web.xml"), "web.xml");
     }
 
     @Deployment(name = "cdi")
-    public static WebArchive createCDIDeployment() {
+    public static WebArchive createCdiServletEnabledDeployment() {
         return ArchiveProvider.createWebArchive("cdi-test", CdiView.class);
     }
 
@@ -30,14 +32,14 @@ public class SmokeTest extends AbstractCDIIntegrationTest {
     }
 
     @Test
-    @OperateOnDeployment("plain")
-    public void testInfrastructureWithPlainVaadin() {
-        assertThat(find("HELLO").getText(), equalTo("hello"));
+    @OperateOnDeployment("noncdi")
+    public void testCdiDisabled() {
+        assertThat(find("HELLO").getText(), equalTo("no CDI"));
     }
 
     @Test
     @OperateOnDeployment("cdi")
-    public void testCDIInstantiator() {
+    public void testCdiEnabled() {
         assertThat(find("HELLO").getText(), equalTo("hello CDI"));
     }
 

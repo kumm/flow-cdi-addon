@@ -5,13 +5,13 @@
          version="3.1">
 
     <servlet>
-        <servlet-name>Vaadin CDI Servlet</servlet-name>
-        <servlet-class>com.vaadin.flow.cdi.server.CdiVaadinServlet</servlet-class>
+        <servlet-name>Vaadin Servlet</servlet-name>
+        <servlet-class>com.vaadin.flow.server.VaadinServlet</servlet-class>
         <async-supported>true</async-supported>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>Vaadin CDI Servlet</servlet-name>
+        <servlet-name>Vaadin Servlet</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 

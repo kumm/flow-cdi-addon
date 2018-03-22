@@ -1,8 +1,8 @@
 package com.vaadin.flow.cdi.itest.smoke;
 
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.PostConstruct;
@@ -18,12 +18,20 @@ public class CdiView extends Div {
     public CdiView() {
         NativeButton button = new NativeButton("Click me",
                 event -> {
-                    final Span hello = new Span(helloProvider.getHello());
+                    final Label hello = new Label(getLabelText());
                     hello.setId("HELLO");
                     add(hello);
                 });
         button.setId("CLICK_ME");
         add(button);
+    }
+
+    private String getLabelText() {
+        if (helloProvider != null) {
+            return helloProvider.getHello();
+        } else {
+            return "no CDI";
+        }
     }
 
     @PostConstruct
