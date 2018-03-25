@@ -1,6 +1,7 @@
 package com.vaadin.flow.cdi.contexts;
 
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,8 +12,12 @@ import static org.junit.Assert.assertEquals;
 public abstract class AbstractContextTest<T extends TestBean> {
 
     @Before
-    public void tearDown() {
+    public void setUp() {
         T.resetCount();
+    }
+
+    @After
+    public void tearDown() {
         newContextUnderTest().tearDown();
     }
 
