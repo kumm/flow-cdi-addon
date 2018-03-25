@@ -46,6 +46,14 @@ abstract public class AbstractCDIIntegrationTest {
         return firstWindow.findElement(By.id(id));
     }
 
+    protected WebElement findInShadow(String tagName, String id) {
+        return (WebElement) ((JavascriptExecutor) firstWindow).executeScript(
+                "return document.querySelector(arguments[0])" +
+                        ".shadowRoot.querySelector('#'+arguments[1])",
+                tagName, id
+        );
+    }
+
     protected WebElement findLink(String linkText) {
         return firstWindow.findElement(By.linkText(linkText));
     }
