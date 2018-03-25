@@ -2,17 +2,19 @@ package com.vaadin.flow.cdi.internal;
 
 import com.vaadin.flow.di.DefaultInstantiator;
 import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -72,17 +74,23 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     @Override
     public Stream<VaadinServiceInitListener> getServiceInitListeners() {
-        Stream<VaadinServiceInitListener> cdiListeners = beanManager
-                .getBeans(VaadinServiceInitListener.class, new AnyLiteral())
-                .stream().map(this::getServiceInitListenerReference);
-        return Stream.concat(super.getServiceInitListeners(), cdiListeners);
+        final ServiceInitBroadcaster broadcaster = BeanProvider
+                .getDependent(beanManager, ServiceInitBroadcaster.class)
+                .get();
+        return Stream.concat(
+                super.getServiceInitListeners(),
+                Stream.of(broadcaster));
     }
 
-    private VaadinServiceInitListener getServiceInitListenerReference(Bean<?> bean) {
-        final CreationalContext<?> creationalContext = beanManager
-                .createCreationalContext(bean);
-        return (VaadinServiceInitListener) beanManager.getReference(bean,
-                VaadinServiceInitListener.class,
-                creationalContext);
+    public static class ServiceInitBroadcaster
+            implements VaadinServiceInitListener {
+        @Inject
+        private Event<ServiceInitEvent> eventTrigger;
+
+        @Override
+        public void serviceInit(ServiceInitEvent event) {
+            eventTrigger.fire(event);
+        }
     }
+
 }

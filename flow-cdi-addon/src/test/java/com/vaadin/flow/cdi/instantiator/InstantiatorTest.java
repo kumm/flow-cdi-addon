@@ -1,11 +1,13 @@
 package com.vaadin.flow.cdi.instantiator;
 
 import com.vaadin.flow.cdi.internal.CdiInstantiator;
+import com.vaadin.flow.cdi.internal.CdiInstantiator.ServiceInitBroadcaster;
 import com.vaadin.flow.cdi.server.CdiVaadinServletService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.apache.deltaspike.core.api.exclude.Exclude;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -15,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,6 +35,12 @@ public class InstantiatorTest {
 
     @Inject
     RouteTarget2 singleton;
+
+    @Inject
+    ServiceInitObserver serviceInitObserver;
+
+    @Inject
+    ServiceInitBroadcaster serviceInitBroadcaster;
 
     private Instantiator instantiator;
 
@@ -62,12 +72,22 @@ public class InstantiatorTest {
     }
 
     @Test
-    public void getServiceInitListeners_springManagedBeanAndJavaSPI_bothClassesAreInStream() {
-        Set<?> set = instantiator.getServiceInitListeners()
-                .map(Object::getClass).collect(Collectors.toSet());
+    public void testGetServiceInitListenersContainsCdiBroadcasterAndSPI() {
+        final Set<VaadinServiceInitListener> listeners = instantiator.
+                getServiceInitListeners().collect(Collectors.toSet());
 
-        Assert.assertTrue(set.contains(TestVaadinServiceInitListener.class));
-        Assert.assertTrue(set.contains(JavaSPIVaadinServiceInitListener.class));
+        Assert.assertTrue(listeners.stream().anyMatch(
+                listener -> listener instanceof ServiceInitBroadcaster));
+        Assert.assertTrue(listeners.stream().anyMatch(
+                listener -> listener instanceof JavaSPIVaadinServiceInitListener));
+    }
+
+    @Test
+    public void testServiceInitObserverCalled() {
+        final VaadinService service = Mockito.mock(VaadinService.class);
+        final ServiceInitEvent event = new ServiceInitEvent(service);
+        serviceInitBroadcaster.serviceInit(event);
+        Assert.assertSame(event, serviceInitObserver.getEvent());
     }
 
     @Test
@@ -131,13 +151,18 @@ public class InstantiatorTest {
 
     }
 
-    public static class TestVaadinServiceInitListener
-            implements VaadinServiceInitListener {
+    @RequestScoped
+    public static class ServiceInitObserver {
 
-        @Override
-        public void serviceInit(ServiceInitEvent event) {
+        ServiceInitEvent event;
+
+        public void serviceInit(@Observes  ServiceInitEvent event) {
+            this.event = event;
         }
 
+        public ServiceInitEvent getEvent() {
+            return event;
+        }
     }
 
 }
