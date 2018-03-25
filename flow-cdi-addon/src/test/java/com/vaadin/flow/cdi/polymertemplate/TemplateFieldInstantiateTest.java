@@ -25,6 +25,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -82,11 +83,6 @@ public class TemplateFieldInstantiateTest {
         assertComponentAttached(template.pseudo, "pseudo");
     }
 
-    @Test
-    public void testNormalScopedComponentAttached() {
-        assertComponentAttached(template.normal, "normal");
-    }
-
     private void assertComponentAttached(Component component, String id) {
         final StateNode nodeInComponent = component.getElement().getNode();
         final JsonValue payload = nodeInComponent.getFeature(ElementData.class).getPayload();
@@ -97,6 +93,33 @@ public class TemplateFieldInstantiateTest {
         assertTrue(payload.jsEquals(payloadJson));
     }
 
+    @Test
+    @Ignore("Normal scoped components are not supported.")
+/*
+        Vaadin Component reads binding info from thread local
+    in the no-arg constructor.
+    CDI client proxies extend from bean class ( in turn Component class ),
+    so constructor may inherited depending on the implementation.
+
+        In OWB1:
+    Component constructor bypassed in proxy,
+    called at contextual instance instantiation.
+    Would require just a blind call right after proxy creation,
+    to force instantiation, and binding.
+
+        In Weld2:
+    With default proxy factory used in EE containers.
+    ( Weld SE use by default an other one, so broken just like OWB1...)
+    CDI client proxy bind self to the element in the inherited constructor.
+    Would require to save, and reset thread local before proxy creation.
+    Right after restore, and make a blind call to force instantiation.
+
+    Since element binding, and event handling use component references,
+    it is questionable whether proxies are useful.
+*/
+    public void testNormalScopedComponentAttached() {
+        assertComponentAttached(template.normal, "normal");
+    }
 
     @UIScoped
     @Tag("uiscoped-label")
