@@ -35,7 +35,7 @@ public class SessionUnderTestContext implements UnderTestContext {
     }
 
     @Override
-    public void tearDown() {
+    public void tearDownAll() {
         VaadinSession.setCurrent(null);
     }
 

@@ -39,11 +39,11 @@ public class UIUnderTestContext implements UnderTestContext {
     }
 
     @Override
-    public void tearDown() {
+    public void tearDownAll() {
         UI.setCurrent(null);
         uiIdNdx = 0;
         if (sessionContextUnderTest != null) {
-            sessionContextUnderTest.tearDown();
+            sessionContextUnderTest.tearDownAll();
             sessionContextUnderTest = null;
         }
     }

@@ -66,7 +66,7 @@ public class TemplateFieldInstantiateTest {
 
     @After
     public void tearDown() {
-        uiUnderTestContext.tearDown();
+        uiUnderTestContext.tearDownAll();
     }
 
     @Test

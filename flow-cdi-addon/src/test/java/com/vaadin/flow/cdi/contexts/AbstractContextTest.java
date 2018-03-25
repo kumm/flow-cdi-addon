@@ -18,7 +18,7 @@ public abstract class AbstractContextTest<T extends TestBean> {
 
     @After
     public void tearDown() {
-        newContextUnderTest().tearDown();
+        newContextUnderTest().tearDownAll();
     }
 
     @Test(expected = ContextNotActiveException.class)
