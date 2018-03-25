@@ -9,13 +9,14 @@ import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CdiVaadinServletService extends VaadinServletService {
@@ -66,7 +67,7 @@ public class CdiVaadinServletService extends VaadinServletService {
     }
 
     private static Logger getLogger() {
-        return Logger.getLogger(CdiVaadinServletService.class
+        return LoggerFactory.getLogger(CdiVaadinServletService.class
                 .getCanonicalName());
     }
 
@@ -75,12 +76,12 @@ public class CdiVaadinServletService extends VaadinServletService {
             // Happens on tomcat when it expires sessions upon undeploy.
             // beanManager.getPassivationCapableBean returns null for passivation id,
             // so we would get an NPE from AbstractContext.destroyAllActive
-            getLogger().warning("VaadinSessionScoped context does not exist. " +
+            getLogger().warn("VaadinSessionScoped context does not exist. " +
                     "Maybe application is undeployed." +
                     " Can't destroy VaadinSessionScopedContext.");
             return;
         }
-        getLogger().fine("VaadinSessionScopedContext destroy");
+        getLogger().debug("VaadinSessionScopedContext destroy");
         VaadinSessionScopedContext.destroy(event.getSession());
     }
 

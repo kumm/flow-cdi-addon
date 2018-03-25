@@ -3,13 +3,14 @@ package com.vaadin.flow.cdi.internal;
 import com.vaadin.flow.cdi.NormalUIScoped;
 import com.vaadin.flow.cdi.UIScoped;
 import com.vaadin.flow.cdi.VaadinSessionScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
-import java.util.logging.Logger;
 
 public class VaadinExtension implements Extension {
 
@@ -38,6 +39,6 @@ public class VaadinExtension implements Extension {
     }
 
     private static Logger getLogger() {
-        return Logger.getLogger(VaadinExtension.class.getCanonicalName());
+        return LoggerFactory.getLogger(VaadinExtension.class.getCanonicalName());
     }
 }
