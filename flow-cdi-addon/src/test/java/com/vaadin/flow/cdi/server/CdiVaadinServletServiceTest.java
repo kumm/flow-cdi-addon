@@ -88,7 +88,7 @@ public class CdiVaadinServletServiceTest {
         DeploymentConfiguration configuration = mock(DeploymentConfiguration.class);
         service = new CdiVaadinServletService(servlet, configuration, beanManager) {
             // We have nothing to do with atmosphere,
-            // and mocking is is much easier without it.
+            // and mocking is much easier without it.
             @Override
             protected boolean isAtmosphereAvailable() {
                 return false;
