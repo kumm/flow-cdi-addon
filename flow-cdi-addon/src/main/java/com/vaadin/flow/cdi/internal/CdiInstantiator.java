@@ -6,16 +6,20 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class CdiInstantiator extends DefaultInstantiator {
 
+    private static final String FALLING_BACK_TO_DEFAULT_INSTANTIATION
+            = "Falling back to default instantiation. ";
     private final BeanManager beanManager;
 
     public CdiInstantiator(VaadinService service, BeanManager beanManager) {
@@ -25,13 +29,23 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     @Override
     public <T> T getOrCreate(Class<T> type) {
-        final T reference = BeanProvider
-                .getContextualReference(beanManager, type, true);
-        if (reference != null) {
-            return reference;
-        } else {
+        final Set<Bean<?>> beans = beanManager.getBeans(type);
+        if (beans == null || beans.isEmpty()) {
+            getLogger().warn(FALLING_BACK_TO_DEFAULT_INSTANTIATION +
+                    "'{}' is not a CDI bean.", type.getName());
             return super.getOrCreate(type);
         }
+        final Bean<?> bean;
+        try {
+            bean = beanManager.resolve(beans);
+        } catch (AmbiguousResolutionException e) {
+            getLogger().warn(FALLING_BACK_TO_DEFAULT_INSTANTIATION +
+                    "Multiple CDI beans found. ", e);
+            return super.getOrCreate(type);
+        }
+        final CreationalContext<?> ctx = beanManager.createCreationalContext(bean);
+        //noinspection unchecked
+        return  (T) beanManager.getReference(bean, type, ctx);
     }
 
     @Override
@@ -47,9 +61,13 @@ public class CdiInstantiator extends DefaultInstantiator {
     }
 
     private void logI18NFallback(String s) {
-        LoggerFactory.getLogger(CdiInstantiator.class.getName()).info(
+        getLogger().info(
                 s + " Cannot use CDI beans for I18N, falling back to the default behavior",
                 I18NProvider.class.getSimpleName());
+    }
+
+    private static Logger getLogger() {
+        return LoggerFactory.getLogger(CdiInstantiator.class.getName());
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
+import org.apache.deltaspike.core.api.exclude.Exclude;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,6 +70,20 @@ public class InstantiatorTest {
         Assert.assertTrue(set.contains(JavaSPIVaadinServiceInitListener.class));
     }
 
+    @Test
+    public void testNonCdiBeanInstatiationFallback() {
+        final NotACdiBean instance = instantiator.getOrCreate(NotACdiBean.class);
+        Assert.assertNotNull(instance);
+        Assert.assertNull(instance.getBm());
+    }
+
+    @Test
+    public void testAmbiguousResoulitionInstantiationFallback() {
+        final ParentBean instance = instantiator.getOrCreate(ParentBean.class);
+        Assert.assertNotNull(instance);
+        Assert.assertNull(instance.getBm());
+    }
+
     public static class RouteTarget1 extends Div {
 
     }
@@ -77,6 +92,24 @@ public class InstantiatorTest {
     public static class RouteTarget2 extends Div {
 
     }
+
+    public static class ParentBean {
+        @Inject
+        BeanManager bm;
+
+        public BeanManager getBm() {
+            return bm;
+        }
+    }
+
+
+    @Exclude
+    public static class NotACdiBean extends ParentBean{
+    }
+
+    public static class Ambiguous extends ParentBean {
+    }
+
 
     public static class I18NTestProvider implements I18NProvider {
 
