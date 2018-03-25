@@ -9,19 +9,16 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.AmbiguousResolutionException;
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class CdiInstantiator extends DefaultInstantiator {
 
     private static final String FALLING_BACK_TO_DEFAULT_INSTANTIATION
-            = "Falling back to default instantiation. ";
+            = "Falling back to default instantiation.";
     private final BeanManager beanManager;
 
     public CdiInstantiator(VaadinService service, BeanManager beanManager) {
@@ -31,23 +28,15 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     @Override
     public <T> T getOrCreate(Class<T> type) {
-        final Set<Bean<?>> beans = beanManager.getBeans(type);
-        if (beans == null || beans.isEmpty()) {
-            getLogger().warn(FALLING_BACK_TO_DEFAULT_INSTANTIATION +
-                    "'{}' is not a CDI bean.", type.getName());
-            return super.getOrCreate(type);
-        }
-        final Bean<?> bean;
-        try {
-            bean = beanManager.resolve(beans);
-        } catch (AmbiguousResolutionException e) {
-            getLogger().warn(FALLING_BACK_TO_DEFAULT_INSTANTIATION +
-                    "Multiple CDI beans found. ", e);
-            return super.getOrCreate(type);
-        }
-        final CreationalContext<?> ctx = beanManager.createCreationalContext(bean);
-        //noinspection unchecked
-        return  (T) beanManager.getReference(bean, type, ctx);
+        return new BeanLookup<>(beanManager, type)
+                .ifUnsatisfied(() ->
+                        getLogger().warn("'{}' is not a CDI bean. "
+                                + FALLING_BACK_TO_DEFAULT_INSTANTIATION, type.getName()))
+                .ifAmbiguous(e ->
+                        getLogger().warn("Multiple CDI beans found. "
+                                + FALLING_BACK_TO_DEFAULT_INSTANTIATION, e))
+                .fallbackTo(() -> super.getOrCreate(type))
+                .getContextualReference();
     }
 
     @Override
