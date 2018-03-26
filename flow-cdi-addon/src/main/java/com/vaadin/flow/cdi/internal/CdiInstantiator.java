@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 public class CdiInstantiator extends DefaultInstantiator {
@@ -20,6 +21,8 @@ public class CdiInstantiator extends DefaultInstantiator {
             = "Falling back to default instantiation.";
     public static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
             = "Cannot use CDI beans for I18N, falling back to the default behavior.";
+
+    private AtomicBoolean i18NLoggingEnabled = new AtomicBoolean(true);
     private final BeanManager beanManager;
 
     public CdiInstantiator(VaadinService service, BeanManager beanManager) {
@@ -42,14 +45,19 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     @Override
     public I18NProvider getI18NProvider() {
-        return new BeanLookup<>(beanManager, I18NProvider.class)
-                .ifUnsatisfied(() ->
-                        getLogger().info("Can't find any bean implementing '{}'. "
-                                        + CANNOT_USE_CDI_BEANS_FOR_I18_N,
-                                I18NProvider.class.getSimpleName()))
-                .ifAmbiguous(e ->
-                        getLogger().warn("Found more beans for I18N. "
-                                + CANNOT_USE_CDI_BEANS_FOR_I18_N, e))
+        final BeanLookup<I18NProvider> lookup
+                = new BeanLookup<>(beanManager, I18NProvider.class);
+        if (i18NLoggingEnabled.compareAndSet(true, false)) {
+            lookup
+                    .ifUnsatisfied(() ->
+                            getLogger().info("Can't find any bean implementing '{}'. "
+                                            + CANNOT_USE_CDI_BEANS_FOR_I18_N,
+                                    I18NProvider.class.getSimpleName()))
+                    .ifAmbiguous(e ->
+                            getLogger().warn("Found more beans for I18N. "
+                                    + CANNOT_USE_CDI_BEANS_FOR_I18_N, e));
+        }
+        return lookup
                 .fallbackTo(super::getI18NProvider)
                 .getContextualReference();
     }
