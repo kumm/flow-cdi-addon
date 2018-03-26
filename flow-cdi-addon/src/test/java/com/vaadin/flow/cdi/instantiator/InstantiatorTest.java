@@ -34,7 +34,7 @@ public class InstantiatorTest {
     BeanManager beanManager;
 
     @Inject
-    RouteTarget2 singleton;
+    SomeCdiBean singleton;
 
     @Inject
     ServiceInitObserver serviceInitObserver;
@@ -49,19 +49,6 @@ public class InstantiatorTest {
         instantiator = new CdiInstantiator(
                 Mockito.mock(CdiVaadinServletService.class),
                 beanManager);
-    }
-
-    @Test
-    public void createRouteTarget_pojo_instanceIsCreated() {
-        RouteTarget1 target1 = instantiator
-                .createRouteTarget(RouteTarget1.class, null);
-        Assert.assertNotNull(target1);
-    }
-
-    @Test
-    public void createRouteTarget_cdiManagedBean_instanceIsCreated() {
-        Assert.assertEquals(singleton,
-                instantiator.createRouteTarget(RouteTarget2.class, null));
     }
 
     @Test
@@ -91,6 +78,12 @@ public class InstantiatorTest {
     }
 
     @Test
+    public void testCdiBeanInstantiated() {
+        Assert.assertEquals(singleton,
+                instantiator.getOrCreate(SomeCdiBean.class));
+    }
+
+    @Test
     public void testNonCdiBeanInstatiationInjectionOccurs() {
         final NotACdiBean instance = instantiator.getOrCreate(NotACdiBean.class);
         Assert.assertNotNull(instance);
@@ -104,12 +97,8 @@ public class InstantiatorTest {
         Assert.assertNotNull(instance.getBm());
     }
 
-    public static class RouteTarget1 extends Div {
-
-    }
-
     @Singleton
-    public static class RouteTarget2 extends Div {
+    public static class SomeCdiBean extends Div {
 
     }
 
