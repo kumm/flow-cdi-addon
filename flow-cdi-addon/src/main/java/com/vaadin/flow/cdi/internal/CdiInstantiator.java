@@ -17,8 +17,6 @@ import java.util.stream.Stream;
 
 public class CdiInstantiator extends DefaultInstantiator {
 
-    private static final String FALLING_BACK_TO_DEFAULT_INSTANTIATION
-            = "Falling back to default instantiation.";
     public static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
             = "Cannot use CDI beans for I18N, falling back to the default behavior.";
 
@@ -33,13 +31,11 @@ public class CdiInstantiator extends DefaultInstantiator {
     @Override
     public <T> T getOrCreate(Class<T> type) {
         return new BeanLookup<>(beanManager, type)
-                .ifUnsatisfied(() ->
-                        getLogger().warn("'{}' is not a CDI bean. "
-                                + FALLING_BACK_TO_DEFAULT_INSTANTIATION, type.getName()))
-                .ifAmbiguous(e ->
-                        getLogger().warn("Multiple CDI beans found. "
-                                + FALLING_BACK_TO_DEFAULT_INSTANTIATION, e))
-                .fallbackTo(() -> super.getOrCreate(type))
+                .fallbackTo(() -> {
+                    final T instance = super.getOrCreate(type);
+                    BeanProvider.injectFields(instance);
+                    return instance;
+                })
                 .getContextualReference();
     }
 

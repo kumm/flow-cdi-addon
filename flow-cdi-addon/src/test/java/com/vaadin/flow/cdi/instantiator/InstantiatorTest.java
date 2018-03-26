@@ -91,17 +91,17 @@ public class InstantiatorTest {
     }
 
     @Test
-    public void testNonCdiBeanInstatiationFallback() {
+    public void testNonCdiBeanInstatiationInjectionOccurs() {
         final NotACdiBean instance = instantiator.getOrCreate(NotACdiBean.class);
         Assert.assertNotNull(instance);
-        Assert.assertNull(instance.getBm());
+        Assert.assertNotNull(instance.getBm());
     }
 
     @Test
-    public void testAmbiguousResoulitionInstantiationFallback() {
+    public void testAmbiguousResoulitionInstantiationInjectionOccurs() {
         final ParentBean instance = instantiator.getOrCreate(ParentBean.class);
         Assert.assertNotNull(instance);
-        Assert.assertNull(instance.getBm());
+        Assert.assertNotNull(instance.getBm());
     }
 
     public static class RouteTarget1 extends Div {

@@ -15,9 +15,7 @@ public class BeanLookup<T> {
     private final Annotation[] qualifiers;
     private UnsatisfiedHandler unsatisfiedHandler = () -> {};
     private Supplier<T> fallback = () -> null;
-    private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {
-        throw e;
-    };
+    private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {};
 
     public BeanLookup(BeanManager beanManager, Class<T> type, Annotation... qualifiers) {
         this.beanManager = beanManager;
