@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BeanLookup<T>  {
+public class BeanLookup<T> {
     private final BeanManager beanManager;
     private final Class<T> type;
     private final Annotation[] qualifiers;
@@ -55,7 +55,7 @@ public class BeanLookup<T>  {
         }
         final CreationalContext<?> ctx = beanManager.createCreationalContext(bean);
         //noinspection unchecked
-        return  (T) beanManager.getReference(bean, type, ctx);
+        return (T) beanManager.getReference(bean, type, ctx);
     }
 
     @FunctionalInterface

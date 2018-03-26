@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import java.util.stream.Stream;
@@ -19,6 +18,8 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     private static final String FALLING_BACK_TO_DEFAULT_INSTANTIATION
             = "Falling back to default instantiation.";
+    public static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
+            = "Cannot use CDI beans for I18N, falling back to the default behavior.";
     private final BeanManager beanManager;
 
     public CdiInstantiator(VaadinService service, BeanManager beanManager) {
@@ -41,20 +42,16 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     @Override
     public I18NProvider getI18NProvider() {
-        try {
-            return BeanProvider.getContextualReference(beanManager, I18NProvider.class, false);
-        } catch (AmbiguousResolutionException  e) {
-            logI18NFallback("Found more beans implementing '{}'.");
-        } catch (IllegalStateException e) {
-            logI18NFallback("Can't find any bean implementing '{}'.");
-        }
-        return super.getI18NProvider();
-    }
-
-    private void logI18NFallback(String s) {
-        getLogger().info(
-                s + " Cannot use CDI beans for I18N, falling back to the default behavior",
-                I18NProvider.class.getSimpleName());
+        return new BeanLookup<>(beanManager, I18NProvider.class)
+                .ifUnsatisfied(() ->
+                        getLogger().info("Can't find any bean implementing '{}'. "
+                                        + CANNOT_USE_CDI_BEANS_FOR_I18_N,
+                                I18NProvider.class.getSimpleName()))
+                .ifAmbiguous(e ->
+                        getLogger().warn("Found more beans for I18N. "
+                                + CANNOT_USE_CDI_BEANS_FOR_I18_N, e))
+                .fallbackTo(super::getI18NProvider)
+                .getContextualReference();
     }
 
     private static Logger getLogger() {

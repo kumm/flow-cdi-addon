@@ -65,10 +65,10 @@ public class InstantiatorTest {
     }
 
     @Test
-    public void getI18NProvider_i18nProviderIsABean_i18nProviderIsAvailable() {
-        Assert.assertNotNull(instantiator.getI18NProvider());
-        Assert.assertEquals(I18NTestProvider.class,
-                instantiator.getI18NProvider().getClass());
+    public void testI18NProviderInstantiated() {
+        final I18NProvider i18NProvider = instantiator.getI18NProvider();
+        Assert.assertNotNull(i18NProvider);
+        Assert.assertTrue((i18NProvider instanceof I18NTestProvider));
     }
 
     @Test
