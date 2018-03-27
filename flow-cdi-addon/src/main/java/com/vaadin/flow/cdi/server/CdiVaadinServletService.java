@@ -1,5 +1,6 @@
 package com.vaadin.flow.cdi.server;
 
+import com.vaadin.flow.cdi.internal.BeanLookup;
 import com.vaadin.flow.cdi.internal.CdiInstantiator;
 import com.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
 import com.vaadin.flow.di.Instantiator;
@@ -8,16 +9,15 @@ import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
-import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 
 public class CdiVaadinServletService extends VaadinServletService {
 
@@ -35,9 +35,9 @@ public class CdiVaadinServletService extends VaadinServletService {
     protected Optional<Instantiator> loadInstantiators()
             throws ServiceException {
         Optional<Instantiator> spiInstantiator = super.loadInstantiators();
-        List<Instantiator> cdiInstantiators = beanManager
-                .getBeans(Instantiator.class, new AnyLiteral()).stream()
-                .map(this::getInstantiatorReference)
+        final List<Instantiator> cdiInstantiators
+                = new BeanLookup<>(beanManager, Instantiator.class, SERVICE)
+                .all()
                 .filter(instantiator -> instantiator.init(this))
                 .collect(Collectors.toList());
         if (spiInstantiator.isPresent() && !cdiInstantiators.isEmpty()) {
@@ -56,14 +56,6 @@ public class CdiVaadinServletService extends VaadinServletService {
         }
         return spiInstantiator.isPresent() ? spiInstantiator
                 : cdiInstantiators.stream().findFirst();
-    }
-
-    private Instantiator getInstantiatorReference(Bean<?> bean) {
-        final CreationalContext<?> creationalContext = beanManager
-                .createCreationalContext(bean);
-        return (Instantiator) beanManager.getReference(bean,
-                Instantiator.class,
-                creationalContext);
     }
 
     private static Logger getLogger() {

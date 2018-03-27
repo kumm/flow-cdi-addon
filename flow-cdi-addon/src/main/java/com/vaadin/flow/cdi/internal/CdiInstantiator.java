@@ -32,19 +32,20 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     @Override
     public <T> T getOrCreate(Class<T> type) {
-        return new BeanLookup<>(beanManager, type)
+        return new BeanLookup<>(beanManager, type).single()
                 .fallbackTo(() -> {
                     final T instance = super.getOrCreate(type);
                     BeanProvider.injectFields(instance);
                     return instance;
                 })
-                .getContextualReference();
+                .get();
     }
 
     @Override
     public I18NProvider getI18NProvider() {
-        final BeanLookup<I18NProvider> lookup
-                = new BeanLookup<>(beanManager, I18NProvider.class, SERVICE);
+        final BeanLookup<I18NProvider>.Single lookup =
+                new BeanLookup<>(beanManager, I18NProvider.class, SERVICE)
+                        .single();
         if (i18NLoggingEnabled.compareAndSet(true, false)) {
             lookup
                     .ifUnsatisfied(() ->
@@ -57,7 +58,7 @@ public class CdiInstantiator extends DefaultInstantiator {
         }
         return lookup
                 .fallbackTo(super::getI18NProvider)
-                .getContextualReference();
+                .get();
     }
 
     private static Logger getLogger() {

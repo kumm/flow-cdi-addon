@@ -11,14 +11,12 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class BeanLookup<T> {
     private final BeanManager beanManager;
     private final Class<T> type;
     private final Annotation[] qualifiers;
-    private UnsatisfiedHandler unsatisfiedHandler = () -> {};
-    private Supplier<T> fallback = () -> null;
-    private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {};
 
     public final static Annotation SERVICE = new ServiceLiteral();
 
@@ -39,34 +37,60 @@ public class BeanLookup<T> {
         this.qualifiers = qualifiers;
     }
 
-    public BeanLookup<T> ifUnsatisfied(UnsatisfiedHandler unsatisfiedHandler) {
-        this.unsatisfiedHandler = unsatisfiedHandler;
-        return this;
+    public Single single() {
+        return new Single();
     }
 
-    public BeanLookup<T> ifAmbiguous(Consumer<AmbiguousResolutionException> ambiguousHandler) {
-        this.ambiguousHandler = ambiguousHandler;
-        return this;
+    public Stream<T> all() {
+        return getBeans().stream().map(BeanLookup.this::getReference);
     }
 
-    public BeanLookup<T> fallbackTo(Supplier<T> fallback) {
-        this.fallback = fallback;
-        return this;
-    }
+    public class Single {
+        private UnsatisfiedHandler unsatisfiedHandler = () -> {};
+        private Supplier<T> fallback = () -> null;
+        private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {};
 
-    public T getContextualReference() {
-        final Set<Bean<?>> beans = beanManager.getBeans(type, qualifiers);
-        if (beans == null || beans.isEmpty()) {
-            unsatisfiedHandler.handle();
-            return fallback.get();
+        private Single() {
         }
-        final Bean<?> bean;
-        try {
-            bean = beanManager.resolve(beans);
-        } catch (AmbiguousResolutionException e) {
-            ambiguousHandler.accept(e);
-            return fallback.get();
+
+        public Single ifUnsatisfied(UnsatisfiedHandler unsatisfiedHandler) {
+            this.unsatisfiedHandler = unsatisfiedHandler;
+            return this;
         }
+
+        public Single ifAmbiguous(Consumer<AmbiguousResolutionException> ambiguousHandler) {
+            this.ambiguousHandler = ambiguousHandler;
+            return this;
+        }
+
+        public Single fallbackTo(Supplier<T> fallback) {
+            this.fallback = fallback;
+            return this;
+        }
+
+        public T get() {
+            final Set<Bean<?>> beans = getBeans();
+            if (beans == null || beans.isEmpty()) {
+                unsatisfiedHandler.handle();
+                return fallback.get();
+            }
+            final Bean<?> bean;
+            try {
+                bean = beanManager.resolve(beans);
+            } catch (AmbiguousResolutionException e) {
+                ambiguousHandler.accept(e);
+                return fallback.get();
+            }
+            return getReference(bean);
+        }
+
+    }
+
+    private Set<Bean<?>> getBeans() {
+        return beanManager.getBeans(type, qualifiers);
+    }
+
+    private T getReference(Bean<?> bean) {
         final CreationalContext<?> ctx = beanManager.createCreationalContext(bean);
         //noinspection unchecked
         return (T) beanManager.getReference(bean, type, ctx);

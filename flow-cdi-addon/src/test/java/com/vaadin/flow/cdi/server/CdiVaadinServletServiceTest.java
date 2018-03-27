@@ -1,5 +1,6 @@
 package com.vaadin.flow.cdi.server;
 
+import com.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.vaadin.flow.cdi.internal.CdiInstantiator;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.function.DeploymentConfiguration;
@@ -33,11 +34,15 @@ public class CdiVaadinServletServiceTest {
     BeanManager beanManager;
 
     @Inject
+    @VaadinServiceEnabled
     TestInstantiatorA testInstantiatorA;
 
     @Inject
-    @TestQualifier
+    @VaadinServiceEnabled
     TestInstantiatorB testInstantiatorB;
+
+    @Inject
+    TestInstantiatorC testInstantiatorC;
 
     private CdiVaadinServletService service;
 
@@ -65,6 +70,7 @@ public class CdiVaadinServletServiceTest {
     }
 
     @RequestScoped
+    @VaadinServiceEnabled
     public static class TestInstantiatorA extends AbstractTestInstantiator {
     }
 
@@ -77,8 +83,12 @@ public class CdiVaadinServletServiceTest {
     }
 
     @RequestScoped
-    @TestQualifier
+    @VaadinServiceEnabled
     public static class TestInstantiatorB extends AbstractTestInstantiator {
+    }
+
+    @RequestScoped
+    public static class TestInstantiatorC extends AbstractTestInstantiator {
     }
 
     @Before
@@ -103,9 +113,9 @@ public class CdiVaadinServletServiceTest {
     }
 
     @Test
-    public void testEnabledCdiInstantiatorWithQualifierCreated() throws ServiceException {
-        testInstantiatorB.setEnabled(true);
-        assertInstantiatorInstanceOf(TestInstantiatorB.class);
+    public void testEnabledCdiInstantiatorWithoutQualifierSkipped() throws ServiceException {
+        testInstantiatorC.setEnabled(true);
+        assertInstantiatorInstanceOf(CdiInstantiator.class);
     }
 
     @Test
