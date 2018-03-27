@@ -1,9 +1,12 @@
 package com.vaadin.flow.cdi.internal;
 
+import com.vaadin.flow.cdi.VaadinServiceEnabled;
+
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.util.AnnotationLiteral;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -16,6 +19,19 @@ public class BeanLookup<T> {
     private UnsatisfiedHandler unsatisfiedHandler = () -> {};
     private Supplier<T> fallback = () -> null;
     private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {};
+
+    public final static Annotation SERVICE = new ServiceLiteral();
+
+    private static class ServiceLiteral
+            extends AnnotationLiteral<VaadinServiceEnabled>
+            implements VaadinServiceEnabled {
+
+    }
+
+    @FunctionalInterface
+    public interface UnsatisfiedHandler {
+        void handle();
+    }
 
     public BeanLookup(BeanManager beanManager, Class<T> type, Annotation... qualifiers) {
         this.beanManager = beanManager;
@@ -56,8 +72,4 @@ public class BeanLookup<T> {
         return (T) beanManager.getReference(bean, type, ctx);
     }
 
-    @FunctionalInterface
-    public interface UnsatisfiedHandler {
-        void handle();
-    }
 }

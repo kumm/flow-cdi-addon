@@ -15,6 +15,8 @@ import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static com.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
+
 public class CdiInstantiator extends DefaultInstantiator {
 
     public static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
@@ -42,7 +44,7 @@ public class CdiInstantiator extends DefaultInstantiator {
     @Override
     public I18NProvider getI18NProvider() {
         final BeanLookup<I18NProvider> lookup
-                = new BeanLookup<>(beanManager, I18NProvider.class);
+                = new BeanLookup<>(beanManager, I18NProvider.class, SERVICE);
         if (i18NLoggingEnabled.compareAndSet(true, false)) {
             lookup
                     .ifUnsatisfied(() ->

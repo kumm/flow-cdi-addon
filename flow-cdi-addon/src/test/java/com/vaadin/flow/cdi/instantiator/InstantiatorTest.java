@@ -1,5 +1,6 @@
 package com.vaadin.flow.cdi.instantiator;
 
+import com.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.vaadin.flow.cdi.internal.CdiInstantiator;
 import com.vaadin.flow.cdi.internal.CdiInstantiator.ServiceInitBroadcaster;
 import com.vaadin.flow.cdi.server.CdiVaadinServletService;
@@ -119,7 +120,7 @@ public class InstantiatorTest {
     public static class Ambiguous extends ParentBean {
     }
 
-
+    @VaadinServiceEnabled
     public static class I18NTestProvider implements I18NProvider {
 
         @Override
