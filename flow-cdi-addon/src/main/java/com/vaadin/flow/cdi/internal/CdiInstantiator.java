@@ -25,7 +25,7 @@ import static com.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
  */
 public class CdiInstantiator extends DefaultInstantiator {
 
-    public static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
+    private static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
             = "Cannot use CDI beans for I18N, falling back to the default behavior.";
 
     private AtomicBoolean i18NLoggingEnabled = new AtomicBoolean(true);
