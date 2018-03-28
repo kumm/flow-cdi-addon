@@ -12,6 +12,9 @@ import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 
+/**
+ * CDI Extension needed to register Vaadin scopes to the runtime.
+ */
 public class VaadinExtension implements Extension {
 
     private UIScopedContext uiScopedContext;

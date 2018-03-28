@@ -19,6 +19,13 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 
+/**
+ * Servlet service implementation for Vaadin CDI.
+ *
+ * This class automatically finds and initializes a CDI {@link Instantiator}.
+ *
+ * @see CdiVaadinServlet
+ */
 public class CdiVaadinServletService extends VaadinServletService {
 
     private final BeanManager beanManager;

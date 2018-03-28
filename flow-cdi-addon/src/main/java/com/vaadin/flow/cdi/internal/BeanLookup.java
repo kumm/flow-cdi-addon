@@ -13,6 +13,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+/**
+ * Utility class for CDI lookup, and instantiation.
+ * <p>
+ * Dependent beans are instantiated without any warning,
+ * but do not get destroyed properly.
+ * @{@link javax.annotation.PreDestroy} won't run.
+ *
+ * @param <T> Bean Type
+ */
 public class BeanLookup<T> {
     private final BeanManager beanManager;
     private final Class<T> type;

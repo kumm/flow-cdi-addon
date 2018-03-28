@@ -17,6 +17,12 @@ import java.util.stream.Stream;
 
 import static com.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 
+/**
+ * Default CDI instantiator.
+ * <p>
+ * Can be overridden by a @{@link com.vaadin.flow.cdi.VaadinServiceEnabled}
+ * {@link com.vaadin.flow.di.Instantiator} CDI bean.
+ */
 public class CdiInstantiator extends DefaultInstantiator {
 
     public static final String CANNOT_USE_CDI_BEANS_FOR_I18_N

@@ -39,8 +39,6 @@ import java.util.Map;
  *
  * Concurrency handling ignored intentionally.
  * Locking of VaadinSession is the responsibility of Vaadin Framework.
- * 
- * @since 3.0
  */
 @VaadinSessionScoped
 public class UIContextualStorageManager implements Serializable {
