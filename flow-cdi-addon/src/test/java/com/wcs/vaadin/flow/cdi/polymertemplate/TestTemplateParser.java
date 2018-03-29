@@ -18,11 +18,12 @@ public class TestTemplateParser implements TemplateParser {
     }
 
     @Override
-    public Element getTemplateContent(Class<? extends PolymerTemplate<?>> clazz, String tag) {
+    public TemplateData getTemplateContent(Class<? extends PolymerTemplate<?>> clazz, String tag) {
         try {
             Document document = Jsoup.parse(content,
                     StandardCharsets.UTF_8.name(), "");
-            return document.getElementsByTag("dom-module").get(0);
+            Element element = document.getElementsByTag("dom-module").get(0);
+            return new TemplateData("dummy", element);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
