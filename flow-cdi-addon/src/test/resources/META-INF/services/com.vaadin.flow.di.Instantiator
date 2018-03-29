@@ -1,1 +1,1 @@
-com.vaadin.flow.cdi.server.JavaSPIInstantiator
+com.wcs.vaadin.flow.cdi.server.JavaSPIInstantiator

@@ -1,1 +1,1 @@
-com.vaadin.flow.cdi.server.CdiServletDeployer
+com.wcs.vaadin.flow.cdi.server.CdiServletDeployer

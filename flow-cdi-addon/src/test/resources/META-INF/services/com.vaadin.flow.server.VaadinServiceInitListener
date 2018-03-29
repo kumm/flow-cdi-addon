@@ -1,1 +1,1 @@
-com.vaadin.flow.cdi.instantiator.JavaSPIVaadinServiceInitListener
+com.wcs.vaadin.flow.cdi.instantiator.JavaSPIVaadinServiceInitListener
