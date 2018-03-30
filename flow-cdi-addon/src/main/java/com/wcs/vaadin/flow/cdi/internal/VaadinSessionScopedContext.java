@@ -32,8 +32,6 @@ import java.lang.annotation.Annotation;
  *
  * Stores contextuals in {@link VaadinSession}.
  * Other Vaadin CDI contexts are stored in the corresponding VaadinSessionScoped context.
- *
- * @since 3.0
  */
 public class VaadinSessionScopedContext extends AbstractContext {
 
