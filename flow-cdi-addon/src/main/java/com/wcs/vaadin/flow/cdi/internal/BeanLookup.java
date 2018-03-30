@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * <p>
  * Dependent beans are instantiated without any warning,
  * but do not get destroyed properly.
- * @{@link javax.annotation.PreDestroy} won't run.
+ * {@link javax.annotation.PreDestroy} won't run.
  *
  * @param <T> Bean Type
  */

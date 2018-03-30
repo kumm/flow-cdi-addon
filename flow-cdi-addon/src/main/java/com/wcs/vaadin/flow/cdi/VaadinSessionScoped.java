@@ -24,11 +24,9 @@ import java.lang.annotation.*;
  * Injecting with this annotation will create a proxy for the contextual
  * instance rather than provide the contextual instance itself.
  * <p>
- * <p>
  * Contextual instances stored in VaadinSession, so indirectly stored in HTTP session.
  * {@link javax.annotation.PreDestroy} called after SessionDestroyEvent fired.
- * </p>
- * 
+ *
  * @since 3.0
  */
 @NormalScope
