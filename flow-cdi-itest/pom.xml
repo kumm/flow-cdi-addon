@@ -4,9 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.wcs.vaadin</groupId>
+        <artifactId>flow-cdi-root</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
     <artifactId>flow-cdi-itest</artifactId>
-    <groupId>com.vaadin</groupId>
-    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -25,7 +28,7 @@
     <dependencies>
         <dependency>
             <artifactId>flow-cdi-addon</artifactId>
-            <groupId>com.vaadin</groupId>
+            <groupId>com.wcs.vaadin</groupId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -47,7 +50,6 @@
         <dependency>
             <groupId>org.webjars.bowergithub.polymer</groupId>
             <artifactId>polymer</artifactId>
-            <version>2.5.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

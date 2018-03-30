@@ -40,7 +40,7 @@ public class ArchiveProvider {
                         pom.resolve("org.webjars.bowergithub.polymer:polymer")
                                 .withTransitivity().asFile())
                 .addAsLibraries(
-                        pom.resolve("com.vaadin:flow-cdi-addon")
+                        pom.resolve("com.wcs.vaadin:flow-cdi-addon")
                                 .withTransitivity().asFile())
                 .addAsWebInfResource(EmptyAsset.INSTANCE,
                         ArchivePaths.create("beans.xml"))
