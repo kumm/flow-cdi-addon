@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.wcs.vaadin.flow.cdi.itest.contexts.UIContextRootView.UIID_LABEL;
 import static org.junit.Assert.assertEquals;
 
 public class UIContextTest extends AbstractCDIIntegrationTest {
@@ -29,7 +30,7 @@ public class UIContextTest extends AbstractCDIIntegrationTest {
     public void setUp() throws Exception {
         resetCounts();
         open("");
-        uiId = find(UIContextRootView.UIID_LABEL).getText();
+        uiId = find(UIID_LABEL).getText();
     }
 
     @Test
@@ -65,7 +66,7 @@ public class UIContextTest extends AbstractCDIIntegrationTest {
     @Test
     public void testObserver() {
         click(UIContextRootView.TRIGGER_EVENT_BTN);
-        assertEquals(uiId, find(UIScopedLabel.ID).getText());
+        assertEquals(UIID_LABEL, find(UIScopedLabel.ID).getText());
     }
 
     @Test
@@ -73,7 +74,7 @@ public class UIContextTest extends AbstractCDIIntegrationTest {
         follow(UIContextRootView.NORMALSCOPED_LINK);
         assertEquals(uiId, find(UINormalScopedBeanView.UIID_LABEL).getText());
         open("");
-        uiId = find(UIContextRootView.UIID_LABEL).getText();
+        uiId = find(UIID_LABEL).getText();
         follow(UIContextRootView.NORMALSCOPED_LINK);
         assertEquals(uiId, find(UINormalScopedBeanView.UIID_LABEL).getText());
     }

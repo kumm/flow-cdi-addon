@@ -46,7 +46,7 @@ public class UIContextRootView extends Div {
         closeSession.setId(CLOSE_SESSION_BTN);
 
         final NativeButton triggerEvent = new NativeButton("event trigger",
-                event -> setTextEventTrigger.fire(new SetTextEvent(uiIdStr)));
+                event -> setTextEventTrigger.fire(new SetTextEvent(UIID_LABEL)));
         triggerEvent.setId(TRIGGER_EVENT_BTN);
 
         final Div navDiv = new Div(
