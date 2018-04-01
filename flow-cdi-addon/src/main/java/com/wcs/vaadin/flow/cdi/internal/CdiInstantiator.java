@@ -28,6 +28,8 @@ public class CdiInstantiator extends DefaultInstantiator {
 
     private static final String CANNOT_USE_CDI_BEANS_FOR_I18_N
             = "Cannot use CDI beans for I18N, falling back to the default behavior.";
+    private static final String FALLING_BACK_TO_DEFAULT_INSTANTIATION
+            = "Falling back to default instantiation.";
 
     private AtomicBoolean i18NLoggingEnabled = new AtomicBoolean(true);
     private final BeanManager beanManager;
@@ -40,6 +42,12 @@ public class CdiInstantiator extends DefaultInstantiator {
     @Override
     public <T> T getOrCreate(Class<T> type) {
         return new BeanLookup<>(beanManager, type).single()
+                .ifUnsatisfied(() ->
+                        getLogger().debug("'{}' is not a CDI bean. "
+                                + FALLING_BACK_TO_DEFAULT_INSTANTIATION, type.getName()))
+                .ifAmbiguous(e ->
+                        getLogger().debug("Multiple CDI beans found. "
+                                + FALLING_BACK_TO_DEFAULT_INSTANTIATION, e))
                 .fallbackTo(() -> {
                     final T instance = super.getOrCreate(type);
                     BeanProvider.injectFields(instance);
