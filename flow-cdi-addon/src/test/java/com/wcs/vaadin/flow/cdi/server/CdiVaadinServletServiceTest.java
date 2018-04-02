@@ -5,8 +5,10 @@ import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
+import com.wcs.vaadin.flow.cdi.contexts.ServiceUnderTestContext;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +44,8 @@ public class CdiVaadinServletServiceTest {
     TestInstantiatorC testInstantiatorC;
 
     private CdiVaadinServletService service;
+
+    private ServiceUnderTestContext serviceUnderTestContext;
 
     abstract static class AbstractTestInstantiator implements Instantiator {
         boolean enabled;
@@ -91,7 +95,14 @@ public class CdiVaadinServletServiceTest {
     @Before
     public void setUp() {
         JavaSPIInstantiator.ENABLED = false;
-        service = new TestCdiVaadinServletService(beanManager);
+        serviceUnderTestContext = new ServiceUnderTestContext();
+        serviceUnderTestContext.activate();
+        service = serviceUnderTestContext.getService();
+    }
+
+    @After
+    public void tearDown() {
+        serviceUnderTestContext.tearDownAll();
     }
 
     @Test
