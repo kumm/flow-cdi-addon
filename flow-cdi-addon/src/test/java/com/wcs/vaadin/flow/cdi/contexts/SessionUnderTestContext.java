@@ -1,6 +1,5 @@
 package com.wcs.vaadin.flow.cdi.contexts;
 
-import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.VaadinSessionState;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
@@ -12,8 +11,13 @@ import static org.mockito.Mockito.when;
 public class SessionUnderTestContext implements UnderTestContext {
 
     private VaadinSession session;
+    private static ServiceUnderTestContext serviceUnderTestContext;
 
     private void mockSession() {
+        if (serviceUnderTestContext == null) {
+            serviceUnderTestContext = new ServiceUnderTestContext();
+            serviceUnderTestContext.activate();
+        }
         session = Mockito.mock(TestSession.class,
                 Mockito.withSettings().useConstructor());
         doCallRealMethod().when(session).setAttribute(Mockito.any(String.class),
@@ -37,6 +41,10 @@ public class SessionUnderTestContext implements UnderTestContext {
     @Override
     public void tearDownAll() {
         VaadinSession.setCurrent(null);
+        if (serviceUnderTestContext != null) {
+            serviceUnderTestContext.tearDownAll();
+            serviceUnderTestContext = null;
+        }
     }
 
     @Override
@@ -51,7 +59,7 @@ public class SessionUnderTestContext implements UnderTestContext {
     public static class TestSession extends VaadinSession {
 
         public TestSession() {
-            super(Mockito.mock(VaadinService.class));
+            super(serviceUnderTestContext.getService());
         }
 
     }

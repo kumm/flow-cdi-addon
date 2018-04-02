@@ -3,6 +3,7 @@ package com.wcs.vaadin.flow.cdi.internal;
 import com.vaadin.flow.component.Component;
 import com.wcs.vaadin.flow.cdi.NormalUIScoped;
 import com.wcs.vaadin.flow.cdi.UIScoped;
+import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
 import com.wcs.vaadin.flow.cdi.VaadinSessionScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,19 +58,24 @@ public class VaadinExtension implements Extension {
             getLogger().error(sb.toString());
         }
 
-        uiScopedContext = new UIScopedContext(beanManager);
-        afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
-                UIScoped.class));
-        afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
-                NormalUIScoped.class));
-        getLogger().info("UIScopedContext registered for Vaadin CDI");
-
+        VaadinServiceScopedContext vaadinServiceScopedContext =
+                new VaadinServiceScopedContext(beanManager);
+        afterBeanDiscovery.addContext(
+                new ContextWrapper(vaadinServiceScopedContext, VaadinServiceScoped.class));
+        getLogger().info("VaadinServiceScopedContext registered for Vaadin CDI");
 
         VaadinSessionScopedContext vaadinSessionScopedContext =
                 new VaadinSessionScopedContext(beanManager);
         afterBeanDiscovery.addContext(
                 new ContextWrapper(vaadinSessionScopedContext, VaadinSessionScoped.class));
         getLogger().info("VaadinSessionScopedContext registered for Vaadin CDI");
+
+        uiScopedContext = new UIScopedContext(beanManager);
+        afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
+                UIScoped.class));
+        afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
+                NormalUIScoped.class));
+        getLogger().info("UIScopedContext registered for Vaadin CDI");
     }
 
     private static Logger getLogger() {

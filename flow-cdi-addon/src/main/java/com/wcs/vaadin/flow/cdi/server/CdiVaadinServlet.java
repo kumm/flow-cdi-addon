@@ -2,6 +2,7 @@ package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 
@@ -28,7 +29,11 @@ public class CdiVaadinServlet extends VaadinServlet {
             DeploymentConfiguration configuration) throws ServiceException {
         final CdiVaadinServletService service =
                 new CdiVaadinServletService(this, configuration, beanManager);
+
+        // Need an active service context during init.
+        VaadinService.setCurrent(service);
         service.init();
+        VaadinService.setCurrent(null);
         return service;
     }
 }

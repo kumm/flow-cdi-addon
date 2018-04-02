@@ -1,17 +1,18 @@
 package com.wcs.vaadin.flow.cdi.instantiator;
 
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
+import com.wcs.vaadin.flow.cdi.contexts.ServiceUnderTestContext;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator.ServiceInitBroadcaster;
 import com.wcs.vaadin.flow.cdi.server.CdiVaadinServletService;
 import org.apache.deltaspike.core.api.exclude.Exclude;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,8 @@ import java.util.stream.Collectors;
 public class InstantiatorTest {
 
     @Inject
-    BeanManager beanManager;
+    @VaadinServiceEnabled
+    CdiInstantiator instantiator;
 
     @Inject
     SomeCdiBean singleton;
@@ -43,13 +45,18 @@ public class InstantiatorTest {
     @Inject
     ServiceInitBroadcaster serviceInitBroadcaster;
 
-    private Instantiator instantiator;
+    ServiceUnderTestContext serviceUnderTestContext = new ServiceUnderTestContext();
 
     @Before
     public void setUp() {
-        instantiator = new CdiInstantiator(
-                Mockito.mock(CdiVaadinServletService.class),
-                beanManager);
+        serviceUnderTestContext.activate();
+        CdiVaadinServletService service = serviceUnderTestContext.getService();
+        Assert.assertTrue(instantiator.init(service));
+    }
+
+    @After
+    public void tearDown() {
+        serviceUnderTestContext.tearDownAll();
     }
 
     @Test

@@ -8,7 +8,9 @@ import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
+import com.wcs.vaadin.flow.cdi.internal.VaadinServiceScopedContext;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
+import org.apache.deltaspike.core.util.context.ContextualStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +31,19 @@ import static com.wcs.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 public class CdiVaadinServletService extends VaadinServletService {
 
     private final BeanManager beanManager;
+    private final ContextualStorage contextualStorage;
 
     public CdiVaadinServletService(VaadinServlet servlet,
                                    DeploymentConfiguration configuration,
                                    BeanManager beanManager) {
         super(servlet, configuration);
         this.beanManager = beanManager;
+        contextualStorage = new ContextualStorage(beanManager, true, true);
         addSessionDestroyListener(this::sessionDestroy);
+    }
+
+    public ContextualStorage getContextualStorage() {
+        return contextualStorage;
     }
 
     @Override
@@ -44,7 +52,7 @@ public class CdiVaadinServletService extends VaadinServletService {
         Optional<Instantiator> spiInstantiator = super.loadInstantiators();
         final List<Instantiator> cdiInstantiators
                 = new BeanLookup<>(beanManager, Instantiator.class, SERVICE)
-                .all()
+                .select(bean -> !bean.getBeanClass().equals(CdiInstantiator.class))
                 .filter(instantiator -> instantiator.init(this))
                 .collect(Collectors.toList());
         if (spiInstantiator.isPresent() && !cdiInstantiators.isEmpty()) {
@@ -56,8 +64,9 @@ public class CdiVaadinServletService extends VaadinServletService {
                             + cdiInstantiators);
         }
         if (!spiInstantiator.isPresent() && cdiInstantiators.isEmpty()) {
-            Instantiator defaultInstantiator = new CdiInstantiator(this,
-                    beanManager);
+            Instantiator defaultInstantiator =
+                    new BeanLookup<>(beanManager, CdiInstantiator.class, SERVICE)
+                            .single().get();
             defaultInstantiator.init(this);
             return Optional.of(defaultInstantiator);
         }
@@ -84,4 +93,9 @@ public class CdiVaadinServletService extends VaadinServletService {
         VaadinSessionScopedContext.destroy(event.getSession());
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+        VaadinServiceScopedContext.destroy(this);
+    }
 }

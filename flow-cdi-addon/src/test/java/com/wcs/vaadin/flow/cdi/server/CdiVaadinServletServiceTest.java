@@ -1,11 +1,9 @@
 package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.di.Instantiator;
-import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.vaadin.flow.server.VaadinServlet;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -25,7 +23,6 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(CdiTestRunner.class)
 public class CdiVaadinServletServiceTest {
@@ -94,16 +91,7 @@ public class CdiVaadinServletServiceTest {
     @Before
     public void setUp() {
         JavaSPIInstantiator.ENABLED = false;
-        VaadinServlet servlet = mock(VaadinServlet.class);
-        DeploymentConfiguration configuration = mock(DeploymentConfiguration.class);
-        service = new CdiVaadinServletService(servlet, configuration, beanManager) {
-            // We have nothing to do with atmosphere,
-            // and mocking is much easier without it.
-            @Override
-            protected boolean isAtmosphereAvailable() {
-                return false;
-            }
-        };
+        service = new TestCdiVaadinServletService(beanManager);
     }
 
     @Test

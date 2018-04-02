@@ -7,17 +7,15 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.di.Instantiator;
-import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.internal.nodefeature.ElementData;
 import com.vaadin.flow.internal.nodefeature.NodeProperties;
+import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.wcs.vaadin.flow.cdi.NormalUIScoped;
 import com.wcs.vaadin.flow.cdi.UIScoped;
 import com.wcs.vaadin.flow.cdi.contexts.UIUnderTestContext;
-import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
-import com.wcs.vaadin.flow.cdi.server.CdiVaadinServletService;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
@@ -30,37 +28,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(CdiTestRunner.class)
 public class TemplateFieldInstantiateTest {
 
-    @Inject
-    private BeanManager beanManager;
+    private Instantiator instantiator;
     private UIUnderTestContext uiUnderTestContext;
     private TestTemplate template;
 
     @Before
-    public void setUp() {
+    public void setUp() throws ServiceException {
         uiUnderTestContext = new UIUnderTestContext();
         uiUnderTestContext.activate();
         UI ui = uiUnderTestContext.getUi();
-
-        final CdiVaadinServletService service = mock(CdiVaadinServletService.class);
-        Instantiator instantiator = new CdiInstantiator(service, beanManager);
-
-        final DeploymentConfiguration conf = mock(DeploymentConfiguration.class);
-        when(service.getDeploymentConfiguration()).thenReturn(conf);
-        when(conf.isProductionMode()).thenReturn(false);
-        VaadinService.setCurrent(service);
-
-        when(ui.getSession().getService()).thenReturn(service);
-        when(service.getInstantiator()).thenReturn(instantiator);
+        VaadinService service = ui.getSession().getService();
+        service.init();
+        instantiator = service.getInstantiator();
 
         template = instantiator.getOrCreate(TestTemplate.class);
     }

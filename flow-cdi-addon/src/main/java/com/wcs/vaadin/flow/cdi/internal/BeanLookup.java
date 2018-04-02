@@ -10,6 +10,7 @@ import javax.enterprise.util.AnnotationLiteral;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -50,8 +51,10 @@ public class BeanLookup<T> {
         return new Single();
     }
 
-    public Stream<T> all() {
-        return getBeans().stream().map(BeanLookup.this::getReference);
+    public Stream<T> select(Predicate<? super Bean<?>> predicate) {
+        return getBeans().stream()
+                .filter(predicate)
+                .map(BeanLookup.this::getReference);
     }
 
     public class Single {
