@@ -6,19 +6,25 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.enterprise.context.ContextNotActiveException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractContextTest<T extends TestBean> {
 
+    private List<UnderTestContext> contexts;
+
     @Before
     public void setUp() {
         T.resetCount();
+        contexts = new ArrayList<>();
     }
 
     @After
     public void tearDown() {
         newContextUnderTest().tearDownAll();
+        contexts = null;
     }
 
     @Test(expected = ContextNotActiveException.class)
@@ -29,7 +35,7 @@ public abstract class AbstractContextTest<T extends TestBean> {
 
     @Test
     public void testWithContextBeanCreatedOnce() {
-        newContextUnderTest().activate();
+        createContext().activate();
         T referenceA = BeanProvider.getContextualReference(getBeanType());
         referenceA.setState("hello");
         assertEquals("hello", referenceA.getState());
@@ -40,10 +46,10 @@ public abstract class AbstractContextTest<T extends TestBean> {
 
     @Test
     public void testNewContextBeanReCreated() {
-        newContextUnderTest().activate();
+        createContext().activate();
         final T referenceA = BeanProvider.getContextualReference(getBeanType());
         referenceA.setState("hello");
-        newContextUnderTest().activate();
+        createContext().activate();
         if (isNormalSoped()) {
             // proxy delegates to the active context automatically
             assertEquals("", referenceA.getState());
@@ -58,11 +64,11 @@ public abstract class AbstractContextTest<T extends TestBean> {
 
     @Test
     public void testContextDestroy() {
-        final UnderTestContext contextUnderTestA = newContextUnderTest();
+        final UnderTestContext contextUnderTestA = createContext();
         contextUnderTestA.activate();
         final T referenceA = BeanProvider.getContextualReference(getBeanType());
         referenceA.setState("hello");
-        final UnderTestContext contextUnderTestB = newContextUnderTest();
+        final UnderTestContext contextUnderTestB = createContext();
         contextUnderTestB.activate();
         final T referenceB = BeanProvider.getContextualReference(getBeanType());
         referenceB.setState("hello");
@@ -71,6 +77,18 @@ public abstract class AbstractContextTest<T extends TestBean> {
         assertEquals(1, T.getBeanCount());
         contextUnderTestB.destroy();
         assertEquals(0, T.getBeanCount());
+    }
+
+    protected UnderTestContext createContext() {
+        UnderTestContext underTestContext = newContextUnderTest();
+/*
+        UnderTestContext implementations set fields
+        to Vaadin CurrentInstance.
+        Need to hold a hard reference to prevent possible GC,
+        because CurrentInstance works with weak reference.
+*/
+        contexts.add(underTestContext);
+        return underTestContext;
     }
 
     protected abstract UnderTestContext newContextUnderTest();
