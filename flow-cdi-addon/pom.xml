@@ -21,7 +21,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.surefire.plugin.version>2.20</maven.surefire.plugin.version>
 
-        <vaadin.version>10.0.0.beta4</vaadin.version>
+        <vaadin.version>10.0.0.beta5</vaadin.version>
         <deltaspike.version>1.8.1</deltaspike.version>
         <owb.version>1.7.4</owb.version>
         <weld.version>2.4.6.Final</weld.version>
