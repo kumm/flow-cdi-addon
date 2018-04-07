@@ -4,6 +4,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 
 @Route("")
 public class CdiView extends Div {
+    public static final String UI_TEST_VIEW = "ui-test";
     @Inject
     private HelloProvider helloProvider;
 
@@ -23,7 +25,8 @@ public class CdiView extends Div {
                     add(hello);
                 });
         button.setId("CLICK_ME");
-        add(button);
+        add(button,
+                new RouterLink(UI_TEST_VIEW, CdiUITestView.class));
     }
 
     private String getLabelText() {
