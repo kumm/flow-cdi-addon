@@ -1,10 +1,7 @@
 package com.wcs.vaadin.flow.cdi.internal;
 
 import com.vaadin.flow.component.Component;
-import com.wcs.vaadin.flow.cdi.NormalUIScoped;
-import com.wcs.vaadin.flow.cdi.UIScoped;
-import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
-import com.wcs.vaadin.flow.cdi.VaadinSessionScoped;
+import com.wcs.vaadin.flow.cdi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,10 +17,12 @@ import java.util.List;
 public class VaadinExtension implements Extension {
 
     private UIScopedContext uiScopedContext;
+    private RouteScopedContext routeScopedContext;
     private List<String> normalScopedComponentWarnings = new LinkedList<String>();
 
     public void initializeContexts(@Observes AfterDeploymentValidation adv, BeanManager beanManager) {
         uiScopedContext.init(beanManager);
+        routeScopedContext.init(beanManager);
     }
 
     void processManagedBean(@Observes ProcessManagedBean pmb,
@@ -76,6 +75,13 @@ public class VaadinExtension implements Extension {
         afterBeanDiscovery.addContext(new ContextWrapper(uiScopedContext,
                 NormalUIScoped.class));
         getLogger().info("UIScopedContext registered for Vaadin CDI");
+
+        routeScopedContext = new RouteScopedContext(beanManager);
+        afterBeanDiscovery.addContext(new ContextWrapper(routeScopedContext,
+                RouteScoped.class));
+        afterBeanDiscovery.addContext(new ContextWrapper(routeScopedContext,
+                NormalRouteScoped.class));
+        getLogger().info("RouteScopedContext registered for Vaadin CDI");
     }
 
     private static Logger getLogger() {
