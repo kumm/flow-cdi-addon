@@ -9,8 +9,8 @@ import java.lang.annotation.*;
 /**
  * The lifecycle of a RouteScoped component is controlled by route navigation.
  * <p>
- * Every RouteScoped bean belongs to one {@link RouterLayout}, or @{@link Route} owner
- * qualified by @{@link RouteScopeOwner}.
+ * Every RouteScoped bean belongs to one {@link RouterLayout}, or @{@link Route} owner.
+ * Beans are qualified by @{@link RouteScopeOwner} to link with their owner.
  * <p>
  * Until owner remains in the active route chain after navigation,
  * all beans owned by it remain in the scope.
