@@ -13,7 +13,7 @@ public class SessionContextTest extends AbstractContextTest<SessionContextTest.S
     }
 
     @Override
-    protected boolean isNormalSoped() {
+    protected boolean isNormalScoped() {
         return true;
     }
 

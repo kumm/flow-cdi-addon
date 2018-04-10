@@ -18,7 +18,7 @@ public class UiContextNormalTest extends AbstractContextTest<UiContextNormalTest
     }
 
     @Override
-    protected boolean isNormalSoped() {
+    protected boolean isNormalScoped() {
         return true;
     }
 

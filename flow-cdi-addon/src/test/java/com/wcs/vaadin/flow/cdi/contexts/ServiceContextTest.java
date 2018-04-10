@@ -18,7 +18,7 @@ public class ServiceContextTest extends AbstractContextTest<ServiceContextTest.S
     }
 
     @Override
-    protected boolean isNormalSoped() {
+    protected boolean isNormalScoped() {
         return true;
     }
 

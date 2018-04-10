@@ -50,7 +50,7 @@ public abstract class AbstractContextTest<T extends TestBean> {
         final T referenceA = BeanProvider.getContextualReference(getBeanType());
         referenceA.setState("hello");
         createContext().activate();
-        if (isNormalSoped()) {
+        if (isNormalScoped()) {
             // proxy delegates to the active context automatically
             assertEquals("", referenceA.getState());
         } else {
@@ -93,7 +93,7 @@ public abstract class AbstractContextTest<T extends TestBean> {
 
     protected abstract UnderTestContext newContextUnderTest();
 
-    protected abstract boolean isNormalSoped();
+    protected abstract boolean isNormalScoped();
 
     protected abstract Class<T> getBeanType();
 
