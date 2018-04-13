@@ -17,6 +17,7 @@ public class RootView extends AbstractCountedView {
     public static final String REROUTE = "reroute";
     public static final String POSTPONE = "postpone";
     public static final String UIID = "UIID";
+    public static final String EVENT = "event";
 
     @PostConstruct
     private void init() {
@@ -27,7 +28,8 @@ public class RootView extends AbstractCountedView {
                 new Div(new Label("ROOT")),
                 new Div(new RouterLink(MASTER, MasterView.class)),
                 new Div(new RouterLink(REROUTE, RerouteView.class)),
-                new Div(new RouterLink(POSTPONE, PostponeView.class))
+                new Div(new RouterLink(POSTPONE, PostponeView.class)),
+                new Div(new RouterLink(EVENT, EventView.class))
         );
     }
 

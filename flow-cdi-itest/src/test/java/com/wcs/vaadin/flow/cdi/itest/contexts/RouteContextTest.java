@@ -111,6 +111,15 @@ public class RouteContextTest extends AbstractCDIIntegrationTest {
         assertRootViewIsDisplayed();
     }
 
+    @Test
+    public void assertEventHandled() {
+        follow(RootView.EVENT);
+        assertEquals("", find(EventView.OBSERVER_LABEL).getText());
+
+        click(EventView.FIRE);
+        assertEquals("HELLO", find(EventView.OBSERVER_LABEL).getText());
+    }
+
     private void assertRootViewIsDisplayed() {
         assertEquals(uiId, find(RootView.UIID).getText());
     }
