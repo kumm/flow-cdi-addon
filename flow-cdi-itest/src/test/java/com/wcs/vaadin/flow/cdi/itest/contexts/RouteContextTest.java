@@ -28,6 +28,7 @@ public class RouteContextTest extends AbstractCDIIntegrationTest {
         uiId = find(RootView.UIID).getText();
         assertConstructed(RootView.class,1);
         assertDestroyed(RootView.class,0);
+        assertConstructed(RerouteView.class,0);
         assertConstructed(MasterView.class,0);
         assertConstructed(AssignedBean.class,0);
         assertConstructed(ApartBean.class,0);
@@ -84,6 +85,14 @@ public class RouteContextTest extends AbstractCDIIntegrationTest {
 
         assertEquals("", find(MasterView.ASSIGNED_BEAN_LABEL).getText());
         assertEquals("", find(MasterView.APART_BEAN_LABEL).getText());
+    }
+
+    @Test
+    public void testRerouteReleasesSource() throws IOException {
+        follow(RootView.REROUTE);
+        assertConstructed(RerouteView.class,1);
+        assertDestroyed(RerouteView.class,1);
+        assertEquals(uiId, find(RootView.UIID).getText());
     }
 
     private void assertConstructed(Class beanClass, int count) throws IOException {
