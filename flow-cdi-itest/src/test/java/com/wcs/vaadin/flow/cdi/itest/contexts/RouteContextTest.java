@@ -92,6 +92,26 @@ public class RouteContextTest extends AbstractCDIIntegrationTest {
         follow(RootView.REROUTE);
         assertConstructed(RerouteView.class,1);
         assertDestroyed(RerouteView.class,1);
+
+        assertRootViewIsDisplayed();
+    }
+
+    @Test
+    public void testPostponedNavigationDoesNotCreateTarget() throws IOException {
+        follow(RootView.POSTPONE);
+        assertConstructed(RootView.class,1);
+
+        follow(PostponeView.POSTPONED_ROOT);
+        assertConstructed(RootView.class,1);
+        assertDestroyed(RootView.class,1);
+
+        click(PostponeView.NAVIGATE);
+        assertConstructed(RootView.class,2);
+        assertDestroyed(RootView.class,1);
+        assertRootViewIsDisplayed();
+    }
+
+    private void assertRootViewIsDisplayed() {
         assertEquals(uiId, find(RootView.UIID).getText());
     }
 
