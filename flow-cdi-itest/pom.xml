@@ -19,7 +19,7 @@
         <maven.surefire.plugin.version>2.20</maven.surefire.plugin.version>
         <maven.deploy.skip>true</maven.deploy.skip>
 
-        <vaadin.version>10.0.0.beta5</vaadin.version>
+        <vaadin.version>10.0.0.beta7</vaadin.version>
         <selenium.version>3.8.1</selenium.version>
         <graphene.version>2.3.2</graphene.version>
         <arquillian.version>1.1.15.Final</arquillian.version>
