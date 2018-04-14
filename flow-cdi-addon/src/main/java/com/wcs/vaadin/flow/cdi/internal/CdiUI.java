@@ -9,8 +9,10 @@ import com.vaadin.flow.server.VaadinRequest;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Vetoed;
 import javax.inject.Inject;
 
+@Vetoed
 public class CdiUI extends UI {
 
     @Inject
