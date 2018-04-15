@@ -34,6 +34,8 @@ public class RouteContextTest extends AbstractCDIIntegrationTest {
         assertConstructed(ApartBean.class,0);
         assertConstructed(DetailApartView.class,0);
         assertConstructed(DetailAssignedView.class,0);
+        assertConstructed(ErrorParentView.class,0);
+        assertConstructed(ErrorHandlerView.class,0);
     }
 
     @Test
@@ -118,6 +120,35 @@ public class RouteContextTest extends AbstractCDIIntegrationTest {
 
         click(EventView.FIRE);
         assertEquals("HELLO", find(EventView.OBSERVER_LABEL).getText());
+    }
+
+    @Test
+    public void assertErrorHandlerScoped() throws IOException {
+        follow(RootView.ERROR);
+        assertConstructed(RootView.class,1);
+        assertDestroyed(RootView.class,1);
+        assertConstructed(ErrorView.class,1);
+        assertDestroyed(ErrorView.class,1);
+        assertConstructed(ErrorParentView.class,1);
+        assertDestroyed(ErrorParentView.class,0);
+        assertConstructed(ErrorHandlerView.class,1);
+        assertDestroyed(ErrorHandlerView.class,0);
+
+        follow(ErrorHandlerView.PARENT);
+        assertConstructed(ErrorParentView.class,1);
+        assertDestroyed(ErrorParentView.class,0);
+        assertConstructed(ErrorHandlerView.class,1);
+        assertDestroyed(ErrorHandlerView.class,0);
+
+        follow(ErrorParentView.ROOT);
+        assertConstructed(RootView.class,2);
+        assertDestroyed(RootView.class,1);
+        assertConstructed(ErrorParentView.class,1);
+        assertDestroyed(ErrorParentView.class,1);
+        assertConstructed(ErrorHandlerView.class,1);
+        assertDestroyed(ErrorHandlerView.class,1);
+
+        assertRootViewIsDisplayed();
     }
 
     private void assertRootViewIsDisplayed() {
