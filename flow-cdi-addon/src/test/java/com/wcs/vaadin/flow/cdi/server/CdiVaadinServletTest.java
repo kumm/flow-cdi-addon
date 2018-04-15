@@ -1,16 +1,14 @@
 package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.server.VaadinServletService;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.enterprise.inject.spi.BeanManager;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -19,14 +17,10 @@ import java.util.Collections;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(CdiTestRunner.class)
 public class CdiVaadinServletTest {
 
-    @Mock
-    BeanManager beanManager;
-
-    @InjectMocks
-    CdiVaadinServlet servlet;
+    private CdiVaadinServlet servlet;
 
     @Before
     public void setUp() throws ServletException {
@@ -38,7 +32,8 @@ public class CdiVaadinServletTest {
                 .thenReturn(servletContext);
         Mockito.when(servletContext.getInitParameterNames())
                 .thenReturn(Collections.emptyEnumeration());
-
+        servlet = new CdiVaadinServlet();
+        BeanProvider.injectFields(servlet);
         servlet.init(servletConfig);
     }
 

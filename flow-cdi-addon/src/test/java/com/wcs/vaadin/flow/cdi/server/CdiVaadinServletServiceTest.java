@@ -94,7 +94,6 @@ public class CdiVaadinServletServiceTest {
 
     @Before
     public void setUp() {
-        JavaSPIInstantiator.ENABLED = false;
         serviceUnderTestContext = new ServiceUnderTestContext();
         serviceUnderTestContext.activate();
         service = serviceUnderTestContext.getService();
@@ -102,6 +101,7 @@ public class CdiVaadinServletServiceTest {
 
     @After
     public void tearDown() {
+        JavaSPIInstantiator.ENABLED = false;
         serviceUnderTestContext.tearDownAll();
     }
 
