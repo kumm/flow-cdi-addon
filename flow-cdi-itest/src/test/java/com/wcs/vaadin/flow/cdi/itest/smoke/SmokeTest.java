@@ -8,6 +8,8 @@ import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -63,8 +65,11 @@ public class SmokeTest extends AbstractCDIIntegrationTest {
     @OperateOnDeployment("cdi")
     public void testCdiUIPollEvent() throws InterruptedException {
         follow(CdiView.UI_TEST_VIEW);
-        Thread.sleep(1000); // Wait for poll...
-        click(CdiUITestView.SHOW_POLL_EVENT);
+        new WebDriverWait(firstWindow, 10).until(webDriver -> {
+            click(CdiUITestView.SHOW_POLL_EVENT);
+            return firstWindow.findElements(
+                    By.id(CdiUITestView.POLL_IS_FROM_CLIENT)).size() != 0;
+        });
         assertThat(find(CdiUITestView.POLL_IS_FROM_CLIENT).getText(),
                 equalTo("true"));
     }

@@ -59,8 +59,11 @@ public class CdiUITestView extends Div {
     }
 
     private void showPollEvent() {
-        final Label poll = new Label(uiObserver
-                .getPollEvent().isFromClient() + "");
+        PollEvent pollEvent = uiObserver.getPollEvent();
+        if (pollEvent == null) {
+            return;
+        }
+        final Label poll = new Label(pollEvent.isFromClient() + "");
         poll.setId(POLL_IS_FROM_CLIENT);
         add(new Div(poll));
     }
