@@ -1,6 +1,7 @@
 package com.wcs.vaadin.flow.cdi.internal;
 
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
+import org.apache.deltaspike.core.api.literal.AnyLiteral;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.AmbiguousResolutionException;
@@ -29,6 +30,7 @@ public class BeanLookup<T> {
     private final Annotation[] qualifiers;
 
     public final static Annotation SERVICE = new ServiceLiteral();
+    private final static Annotation[] ANY = new Annotation[]{new AnyLiteral()};
 
     private static class ServiceLiteral
             extends AnnotationLiteral<VaadinServiceEnabled>
@@ -44,7 +46,11 @@ public class BeanLookup<T> {
     public BeanLookup(BeanManager beanManager, Class<T> type, Annotation... qualifiers) {
         this.beanManager = beanManager;
         this.type = type;
-        this.qualifiers = qualifiers;
+        if (qualifiers.length > 0) {
+            this.qualifiers = qualifiers;
+        } else {
+            this.qualifiers = ANY;
+        }
     }
 
     public Single single() {
