@@ -8,6 +8,7 @@ import com.wcs.vaadin.flow.cdi.itest.ArchiveProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -16,15 +17,45 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
 import java.lang.annotation.Annotation;
 
-/**
- * Tried push tests in a single test, but this way looks reliable.
- */
-public abstract class AbstractPushTest extends AbstractCDIIntegrationTest {
+public class PushTest extends AbstractCDIIntegrationTest {
 
     @Deployment
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("push", webArchive
                 -> webArchive.addPackage(PushComponent.class.getPackage()));
+    }
+
+    @Test
+    public void testWsNoXhrBackgroundRequestAndSessionDoesNotActive() {
+        open("websocket");
+        click(PushComponent.RUN_BACKGROUND);
+        waitForPush();
+        assertAllExceptRequestAndSessionActive();
+    }
+
+    @Test
+    public void testWsNoXhrForegroundRequestAndSessionDoesNotActive() {
+        open("websocket");
+        click(PushComponent.RUN_FOREGROUND);
+        assertAllExceptRequestAndSessionActive();
+    }
+
+    @Test
+    public void testWsWithXhrBackgroundRequestAndSessionDoesNotActive() {
+        open("websocket-xhr");
+        click(PushComponent.RUN_BACKGROUND);
+        waitForPush();
+        assertAllExceptRequestAndSessionActive();
+    }
+
+    @Test
+    public void testWsWithXhrForegroundAllContextsActive() {
+        open("websocket-xhr");
+        click(PushComponent.RUN_FOREGROUND);
+        assertContextActive(RequestScoped.class, true);
+        assertContextActive(SessionScoped.class, true);
+        assertContextActive(ApplicationScoped.class, true);
+        assertVaadinContextsActive();
     }
 
     protected void assertAllExceptRequestAndSessionActive() {
@@ -48,6 +79,6 @@ public abstract class AbstractPushTest extends AbstractCDIIntegrationTest {
     protected void waitForPush() {
         new WebDriverWait(firstWindow, 10).until(webDriver
                 -> firstWindow.findElements(
-                By.id(RequestScoped.class.getName())).size() == 0);
+                By.id(RequestScoped.class.getName())).size() != 0);
     }
 }
