@@ -1,7 +1,5 @@
-package com.wcs.vaadin.flow.cdi.itest.contexts;
+package com.wcs.vaadin.flow.cdi.itest;
 
-import com.wcs.vaadin.flow.cdi.itest.AbstractCDIIntegrationTest;
-import com.wcs.vaadin.flow.cdi.itest.ArchiveProvider;
 import com.wcs.vaadin.flow.cdi.itest.contexts.route.*;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;

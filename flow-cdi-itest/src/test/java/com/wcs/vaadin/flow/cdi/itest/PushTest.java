@@ -1,10 +1,9 @@
-package com.wcs.vaadin.flow.cdi.itest.push;
+package com.wcs.vaadin.flow.cdi.itest;
 
 import com.wcs.vaadin.flow.cdi.UIScoped;
 import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
 import com.wcs.vaadin.flow.cdi.VaadinSessionScoped;
-import com.wcs.vaadin.flow.cdi.itest.AbstractCDIIntegrationTest;
-import com.wcs.vaadin.flow.cdi.itest.ArchiveProvider;
+import com.wcs.vaadin.flow.cdi.itest.push.PushComponent;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;

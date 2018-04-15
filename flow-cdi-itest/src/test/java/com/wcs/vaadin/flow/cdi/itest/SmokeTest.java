@@ -1,8 +1,8 @@
-package com.wcs.vaadin.flow.cdi.itest.smoke;
+package com.wcs.vaadin.flow.cdi.itest;
 
 import com.vaadin.flow.router.NavigationTrigger;
-import com.wcs.vaadin.flow.cdi.itest.AbstractCDIIntegrationTest;
-import com.wcs.vaadin.flow.cdi.itest.ArchiveProvider;
+import com.wcs.vaadin.flow.cdi.itest.smoke.CdiUITestView;
+import com.wcs.vaadin.flow.cdi.itest.smoke.CdiView;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
