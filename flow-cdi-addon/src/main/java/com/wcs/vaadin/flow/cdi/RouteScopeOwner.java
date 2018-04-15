@@ -1,6 +1,7 @@
 package com.wcs.vaadin.flow.cdi;
 
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
@@ -15,7 +16,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Link a RouteScoped bean to its owner.
  * <p>
  * Use it together with {@link RouteScoped}, or {@link NormalRouteScoped}.
- * Owner class have to be a {@link RouterLayout}, or a @{@link Route}.
+ * Owner class have to be router component.
+ * A @{@link Route}, {@link RouterLayout}, or a {@link HasErrorParameter}.
  */
 @Qualifier
 @Retention(RUNTIME)
