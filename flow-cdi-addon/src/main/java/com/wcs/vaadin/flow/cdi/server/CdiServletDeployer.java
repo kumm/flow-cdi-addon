@@ -2,9 +2,7 @@ package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.startup.ServletDeployer;
-import com.wcs.vaadin.flow.cdi.internal.CdiUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +69,6 @@ public class CdiServletDeployer implements ServletContainerInitializer {
 
         registration.setAsyncSupported(true);
         registration.addMapping("/*");
-        registration.setInitParameter(VaadinSession.UI_PARAMETER,
-                CdiUI.class.getName());
     }
 
     private static ServletRegistration findRootServlet(ServletContext context) {

@@ -1,13 +1,15 @@
 package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.function.DeploymentConfiguration;
-import com.vaadin.flow.server.ServiceException;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServlet;
-import com.vaadin.flow.server.VaadinServletService;
+import com.vaadin.flow.server.*;
+import com.wcs.vaadin.flow.cdi.internal.CdiUI;
 
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
+import java.util.Properties;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+
 /**
  * Servlet to create CdiVaadinServletService.
  * <p>
@@ -35,5 +37,24 @@ public class CdiVaadinServlet extends VaadinServlet {
         service.init();
         VaadinService.setCurrent(null);
         return service;
+    }
+
+    @Override
+    protected DeploymentConfiguration createDeploymentConfiguration(
+            Properties initParameters) {
+        return new CdiDeploymentConfiguration(getClass(), initParameters,
+                this::scanForResources);
+    }
+
+    private static class CdiDeploymentConfiguration extends DefaultDeploymentConfiguration {
+        public CdiDeploymentConfiguration(Class<?> systemPropertyBaseClass, Properties initParameters, BiConsumer<String, Predicate<String>> resourceScanner) {
+            super(systemPropertyBaseClass, initParameters, resourceScanner);
+        }
+
+        @Override
+        public String getUIClassName() {
+            return getStringProperty(VaadinSession.UI_PARAMETER,
+                    CdiUI.class.getName());
+        }
     }
 }
