@@ -3,10 +3,13 @@ package com.wcs.vaadin.flow.cdi.itest.service;
 import com.vaadin.flow.di.Instantiator;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 
+import javax.annotation.Priority;
 import javax.decorator.Decorator;
 import javax.decorator.Delegate;
 import javax.inject.Inject;
+import javax.interceptor.Interceptor;
 
+@Priority(Interceptor.Priority.APPLICATION)
 @Decorator
 public abstract class InstantiatorDecorator implements Instantiator {
     @Inject
