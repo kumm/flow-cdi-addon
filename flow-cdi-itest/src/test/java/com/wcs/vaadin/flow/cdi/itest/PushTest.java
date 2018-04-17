@@ -5,6 +5,7 @@ import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
 import com.wcs.vaadin.flow.cdi.VaadinSessionScoped;
 import com.wcs.vaadin.flow.cdi.itest.push.PushComponent;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,21 +26,7 @@ public class PushTest extends AbstractCDIIntegrationTest {
     }
 
     @Test
-    public void testWsNoXhrBackgroundRequestAndSessionDoesNotActive() {
-        open("websocket");
-        click(PushComponent.RUN_BACKGROUND);
-        waitForPush();
-        assertAllExceptRequestAndSessionActive();
-    }
-
-    @Test
-    public void testWsNoXhrForegroundRequestAndSessionDoesNotActive() {
-        open("websocket");
-        click(PushComponent.RUN_FOREGROUND);
-        assertAllExceptRequestAndSessionActive();
-    }
-
-    @Test
+    @InSequence(1)
     public void testWsWithXhrBackgroundRequestAndSessionDoesNotActive() {
         open("websocket-xhr");
         click(PushComponent.RUN_BACKGROUND);
@@ -48,6 +35,7 @@ public class PushTest extends AbstractCDIIntegrationTest {
     }
 
     @Test
+    @InSequence(2)
     public void testWsWithXhrForegroundAllContextsActive() {
         open("websocket-xhr");
         click(PushComponent.RUN_FOREGROUND);
@@ -55,6 +43,23 @@ public class PushTest extends AbstractCDIIntegrationTest {
         assertContextActive(SessionScoped.class, true);
         assertContextActive(ApplicationScoped.class, true);
         assertVaadinContextsActive();
+    }
+
+    @Test
+    @InSequence(3)
+    public void testWsNoXhrBackgroundRequestAndSessionDoesNotActive() {
+        open("websocket");
+        click(PushComponent.RUN_BACKGROUND);
+        waitForPush();
+        assertAllExceptRequestAndSessionActive();
+    }
+
+    @Test
+    @InSequence(4)
+    public void testWsNoXhrForegroundRequestAndSessionDoesNotActive() {
+        open("websocket");
+        click(PushComponent.RUN_FOREGROUND);
+        assertAllExceptRequestAndSessionActive();
     }
 
     protected void assertAllExceptRequestAndSessionActive() {
