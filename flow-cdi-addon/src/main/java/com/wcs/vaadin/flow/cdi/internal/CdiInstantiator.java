@@ -39,6 +39,8 @@ public class CdiInstantiator implements Instantiator {
     private AtomicBoolean i18NLoggingEnabled = new AtomicBoolean(true);
     @Inject
     private BeanManager beanManager;
+    @Inject
+    private Event<ServiceInitEvent> serviceInitEventTrigger;
 
     private DefaultInstantiator delegate;
 
@@ -94,23 +96,9 @@ public class CdiInstantiator implements Instantiator {
 
     @Override
     public Stream<VaadinServiceInitListener> getServiceInitListeners() {
-        final ServiceInitBroadcaster broadcaster = BeanProvider
-                .getDependent(beanManager, ServiceInitBroadcaster.class)
-                .get();
         return Stream.concat(
                 delegate.getServiceInitListeners(),
-                Stream.of(broadcaster));
-    }
-
-    public static class ServiceInitBroadcaster
-            implements VaadinServiceInitListener {
-        @Inject
-        private Event<ServiceInitEvent> eventTrigger;
-
-        @Override
-        public void serviceInit(ServiceInitEvent event) {
-            eventTrigger.fire(event);
-        }
+                Stream.of(serviceInitEventTrigger::fire));
     }
 
 }
