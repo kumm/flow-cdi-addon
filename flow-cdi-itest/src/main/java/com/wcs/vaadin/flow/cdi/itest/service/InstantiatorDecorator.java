@@ -1,6 +1,8 @@
 package com.wcs.vaadin.flow.cdi.itest.service;
 
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.di.Instantiator;
+import com.vaadin.flow.router.NavigationEvent;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 
 import javax.annotation.Priority;
@@ -24,5 +26,11 @@ public abstract class InstantiatorDecorator implements Instantiator {
             ((InstantiatorDecoratorView) instance).decorate();
         }
         return instance;
+    }
+
+    @Override
+    public <T extends HasElement> T createRouteTarget(Class<T> routeTargetType, NavigationEvent event) {
+        // Need to override it too to make it work on both Weld and OWB.
+        return getOrCreate(routeTargetType);
     }
 }
