@@ -59,8 +59,10 @@ public class VaadinExtension implements Extension {
             getLogger().error(sb.toString());
         }
 
-        addContext(afterBeanDiscovery, new VaadinServiceScopedContext(beanManager));
-        addContext(afterBeanDiscovery, new VaadinSessionScopedContext(beanManager));
+        addContext(afterBeanDiscovery,
+                new VaadinServiceScopedContext(beanManager), null);
+        addContext(afterBeanDiscovery,
+                new VaadinSessionScopedContext(beanManager), null);
         uiScopedContext = new UIScopedContext(beanManager);
         addContext(afterBeanDiscovery, uiScopedContext, NormalUIScoped.class);
         routeScopedContext = new RouteScopedContext(beanManager);
@@ -69,14 +71,15 @@ public class VaadinExtension implements Extension {
 
     private void addContext(AfterBeanDiscovery afterBeanDiscovery,
                             AbstractContext context,
-                            Class<? extends Annotation>... additionalScope) {
-        Class<? extends Annotation> scope = context.getScope();
-        int i = 0;
-        do {
-            afterBeanDiscovery.addContext(new ContextWrapper(context, scope));
-            scope = additionalScope.length > i ? additionalScope[i++] : null;
-        } while (scope != null);
-        getLogger().info("{} registered for Vaadin CDI", context.getClass().getSimpleName());
+                            Class<? extends Annotation> additionalScope) {
+        afterBeanDiscovery.addContext(
+                new ContextWrapper(context, context.getScope()));
+        if (additionalScope != null) {
+            afterBeanDiscovery.addContext(
+                    new ContextWrapper(context, additionalScope));
+        }
+        getLogger().info("{} registered for Vaadin CDI",
+                context.getClass().getSimpleName());
     }
 
     private static Logger getLogger() {
