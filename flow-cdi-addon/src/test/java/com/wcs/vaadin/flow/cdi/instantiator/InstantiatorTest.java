@@ -83,14 +83,14 @@ public class InstantiatorTest {
     }
 
     @Test
-    public void testNonCdiBeanInstatiationInjectionOccurs() {
+    public void testNonCdiBeanInstantiationInjectionOccurs() {
         final NotACdiBean instance = instantiator.getOrCreate(NotACdiBean.class);
         Assert.assertNotNull(instance);
         Assert.assertNotNull(instance.getBm());
     }
 
     @Test
-    public void testAmbiguousResoulitionInstantiationInjectionOccurs() {
+    public void testAmbiguousResolutionInstantiationInjectionOccurs() {
         final ParentBean instance = instantiator.getOrCreate(ParentBean.class);
         Assert.assertNotNull(instance);
         Assert.assertNotNull(instance.getBm());
