@@ -20,7 +20,7 @@ public class VaadinExtension implements Extension {
 
     private UIScopedContext uiScopedContext;
     private RouteScopedContext routeScopedContext;
-    private List<String> normalScopedComponentWarnings = new LinkedList<String>();
+    private List<String> normalScopedComponentWarnings = new LinkedList<>();
 
     public void initializeContexts(@Observes AfterDeploymentValidation adv, BeanManager beanManager) {
         uiScopedContext.init(beanManager);
