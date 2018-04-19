@@ -31,7 +31,7 @@ public class SmokeTest extends AbstractCDIIntegrationTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         open("");
         click("CLICK_ME");
     }
@@ -63,7 +63,7 @@ public class SmokeTest extends AbstractCDIIntegrationTest {
 
     @Test
     @OperateOnDeployment("cdi")
-    public void testCdiUIPollEvent() throws InterruptedException {
+    public void testCdiUIPollEvent() {
         follow(CdiView.UI_TEST_VIEW);
         new WebDriverWait(firstWindow, 10).until(webDriver -> {
             click(CdiUITestView.SHOW_POLL_EVENT);

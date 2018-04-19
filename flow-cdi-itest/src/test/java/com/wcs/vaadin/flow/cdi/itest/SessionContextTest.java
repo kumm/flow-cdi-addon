@@ -24,7 +24,7 @@ public class SessionContextTest extends AbstractCDIIntegrationTest {
     }
 
     @Test
-    public void testUIsAccessSameSession() throws Exception {
+    public void testUIsAccessSameSession() {
         assertEquals("", find(SessionContextView.VALUELABEL_ID).getText());
         click(SessionContextView.SETVALUEBTN_ID);
         refresh();//creates new UI

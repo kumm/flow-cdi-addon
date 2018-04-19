@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
 @RunWith(CdiTestRunner.class)
 public class TemplateFieldInstantiateTest {
 
-    private Instantiator instantiator;
     private UIUnderTestContext uiUnderTestContext;
     private TestTemplate template;
 
@@ -45,7 +44,7 @@ public class TemplateFieldInstantiateTest {
         UI ui = uiUnderTestContext.getUi();
         VaadinService service = ui.getSession().getService();
         service.init();
-        instantiator = service.getInstantiator();
+        Instantiator instantiator = service.getInstantiator();
 
         template = instantiator.getOrCreate(TestTemplate.class);
     }

@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
@@ -28,9 +27,6 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(CdiTestRunner.class)
 public class CdiVaadinServletServiceTest {
-
-    @Inject
-    BeanManager beanManager;
 
     @Inject
     @VaadinServiceEnabled

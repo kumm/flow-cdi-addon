@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class InstantiatorDecoratorTest extends AbstractCDIIntegrationTest {
 
     @Deployment
-    public static WebArchive createDeployment() {
+    public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("instantiator-decorator-test",
                 InstantiatorDecorator.class,
                 InstantiatorDecoratorView.class);

@@ -38,7 +38,7 @@ public class PushComponent extends Div {
                 Thread.sleep(500);
             } catch (InterruptedException e1) {
             }
-            ui.access(() -> print());
+            ui.access(PushComponent.this::print);
         }
     }
 
