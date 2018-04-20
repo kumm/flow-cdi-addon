@@ -22,8 +22,8 @@ public abstract class InstantiatorDecorator implements Instantiator {
     @Override
     public <T> T getOrCreate(Class<T> type) {
         T instance = delegate.getOrCreate(type);
-        if (InstantiatorDecoratorView.class.equals(type)) {
-            ((InstantiatorDecoratorView) instance).decorate();
+        if (InstantiatorCustomizedView.class.equals(type)) {
+            ((InstantiatorCustomizedView) instance).customize();
         }
         return instance;
     }

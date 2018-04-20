@@ -6,16 +6,16 @@ import com.vaadin.flow.router.Route;
 import javax.annotation.PostConstruct;
 
 @Route("")
-public class InstantiatorDecoratorView extends Div {
+public class InstantiatorCustomizedView extends Div {
     public static final String VIEW = "VIEW";
-    public static final String DECORATED = "DECORATED";
+    public static final String CUSTOMIZED = "CUSTOMIZED";
 
     @PostConstruct
     private void init() {
         setId(VIEW);
     }
 
-    public void decorate() {
-        setText(DECORATED);
+    public void customize() {
+        setText(CUSTOMIZED);
     }
 }
