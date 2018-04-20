@@ -52,7 +52,6 @@ public class CdiVaadinServletService extends VaadinServletService {
         Instantiator cdiInstantiator;
         try {
             cdiInstantiator = new BeanLookup<>(beanManager, Instantiator.class, SERVICE)
-                    .single()
                     .ifAmbiguous(e -> {
                         throw e;
                     })

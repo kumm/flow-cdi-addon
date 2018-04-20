@@ -57,7 +57,7 @@ public class CdiInstantiator implements Instantiator {
 
     @Override
     public <T> T getOrCreate(Class<T> type) {
-        return new BeanLookup<>(beanManager, type).single()
+        return new BeanLookup<>(beanManager, type)
                 .ifUnsatisfied(() ->
                         getLogger().debug("'{}' is not a CDI bean. "
                                 + FALLING_BACK_TO_DEFAULT_INSTANTIATION, type.getName()))
@@ -74,9 +74,8 @@ public class CdiInstantiator implements Instantiator {
 
     @Override
     public I18NProvider getI18NProvider() {
-        final BeanLookup<I18NProvider>.Single lookup =
-                new BeanLookup<>(beanManager, I18NProvider.class, SERVICE)
-                        .single();
+        final BeanLookup<I18NProvider> lookup =
+                new BeanLookup<>(beanManager, I18NProvider.class, SERVICE);
         if (i18NLoggingEnabled.compareAndSet(true, false)) {
             lookup
                     .ifUnsatisfied(() ->
