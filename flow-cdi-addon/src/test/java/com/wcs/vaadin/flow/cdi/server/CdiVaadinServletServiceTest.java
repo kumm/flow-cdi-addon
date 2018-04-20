@@ -3,137 +3,96 @@ package com.wcs.vaadin.flow.cdi.server;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
-import com.wcs.vaadin.flow.cdi.contexts.ServiceUnderTestContext;
+import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.AmbiguousResolutionException;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import javax.inject.Qualifier;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-import java.util.stream.Stream;
+import java.util.HashSet;
 
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.*;
 
 @RunWith(CdiTestRunner.class)
 public class CdiVaadinServletServiceTest {
 
     @Inject
-    @VaadinServiceEnabled
-    TestInstantiatorA testInstantiatorA;
-
-    @Inject
-    @VaadinServiceEnabled
-    TestInstantiatorB testInstantiatorB;
-
-    @Inject
-    TestInstantiatorC testInstantiatorC;
+    private BeanManager beanManager;
 
     private CdiVaadinServletService service;
 
-    private ServiceUnderTestContext serviceUnderTestContext;
-
-    abstract static class AbstractTestInstantiator implements Instantiator {
-        boolean enabled;
-
-        @Override
-        public boolean init(VaadinService service) {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        @Override
-        public Stream<VaadinServiceInitListener> getServiceInitListeners() {
-            return Stream.empty();
-        }
-
-        @Override
-        public <T> T getOrCreate(Class<T> type) {
-            return null;
-        }
-    }
-
-    @RequestScoped
-    @VaadinServiceEnabled
-    public static class TestInstantiatorA extends AbstractTestInstantiator {
-    }
-
-
-    @Qualifier
-    @Retention(RUNTIME)
-    @Target({METHOD, FIELD, PARAMETER, TYPE})
-    public @interface TestQualifier {
-
-    }
-
-    @RequestScoped
-    @VaadinServiceEnabled
-    public static class TestInstantiatorB extends AbstractTestInstantiator {
-    }
-
-    @RequestScoped
-    public static class TestInstantiatorC extends AbstractTestInstantiator {
-    }
-
-    @Before
-    public void setUp() {
-        serviceUnderTestContext = new ServiceUnderTestContext();
-        serviceUnderTestContext.activate();
-        service = serviceUnderTestContext.getService();
-    }
-
     @After
     public void tearDown() {
-        JavaSPIInstantiator.ENABLED = false;
-        serviceUnderTestContext.tearDownAll();
+        VaadinService.setCurrent(null);
     }
 
     @Test
-    public void testEnabledCdiInstantiatorCreated() throws ServiceException {
-        testInstantiatorA.setEnabled(true);
-        assertInstantiatorInstanceOf(TestInstantiatorA.class);
-    }
-
-    @Test
-    public void testEnabledCdiInstantiatorWithoutQualifierSkipped() throws ServiceException {
-        testInstantiatorC.setEnabled(true);
-        assertInstantiatorInstanceOf(CdiInstantiator.class);
-    }
-
-    @Test
-    public void testDefaultInstantiatorCreated() throws ServiceException {
-        assertInstantiatorInstanceOf(CdiInstantiator.class);
-    }
-
-    @Test
-    public void testSPIInstantiatorReturned() throws ServiceException {
-        JavaSPIInstantiator.ENABLED = true;
-        assertInstantiatorInstanceOf(JavaSPIInstantiator.class);
+    public void testCdiInstantiatorCreated() throws ServiceException {
+        service = new TestCdiVaadinServletService(beanManager);
+        VaadinService.setCurrent(service);
+        service.init();
+        final Instantiator instantiator = service.getInstantiator();
+        assertThat(instantiator, instanceOf(CdiInstantiator.class));
     }
 
     @Test(expected = ServiceException.class)
-    public void testBothSPIandCDIInstantiatorExistThrowException() throws ServiceException {
-        JavaSPIInstantiator.ENABLED = true;
-        testInstantiatorA.setEnabled(true);
+    public void testAmbiguousCdiInstantiatorThrowsException() throws ServiceException {
+        BeanManager mockBm = mock(BeanManager.class);
+        HashSet<Bean<?>> beans = new HashSet<Bean<?>>() {{
+            add(mock(Bean.class));
+            add(mock(Bean.class));
+        }};
+        when(mockBm.getBeans(eq(Instantiator.class), same(BeanLookup.SERVICE)))
+                .thenReturn(beans);
+        //noinspection unchecked
+        when(mockBm.resolve(same(beans)))
+                .thenThrow(AmbiguousResolutionException.class);
+        service = new TestCdiVaadinServletService(mockBm);
+        service.init();
+
+        verify(mockBm, times(1)).resolve(same(beans));
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testNoCdiInstantiatorThrowsException() throws ServiceException {
+        BeanManager mockBm = mock(BeanManager.class);
+        HashSet<Bean<?>> beans = new HashSet<>();
+        when(mockBm.getBeans(eq(Instantiator.class), same(BeanLookup.SERVICE)))
+                .thenReturn(beans);
+        service = new TestCdiVaadinServletService(mockBm);
         service.init();
     }
 
-    private void assertInstantiatorInstanceOf(Class<? extends Instantiator> type) throws ServiceException {
+    @Test(expected = ServiceException.class)
+    public void testInitReturnsFalseThrowsException() throws ServiceException {
+        BeanManager mockBm = mock(BeanManager.class);
+        service = new TestCdiVaadinServletService(mockBm);
+
+        final Bean mockBean = mock(Bean.class);
+        HashSet<Bean<?>> beans = new HashSet<Bean<?>>() {{
+            add(mockBean);
+        }};
+        when(mockBm.getBeans(eq(Instantiator.class), same(BeanLookup.SERVICE)))
+                .thenReturn(beans);
+        //noinspection unchecked
+        when(mockBm.resolve(same(beans))).thenReturn(mockBean);
+        Instantiator mockInstantiator = mock(Instantiator.class);
+        when(mockBm.getReference(same(mockBean), eq(Instantiator.class), any()))
+                .thenReturn(mockInstantiator);
+        when(mockInstantiator.init(same(service))).thenReturn(false);
         service.init();
-        final Instantiator instantiator = service.getInstantiator();
-        assertThat(instantiator, instanceOf(type));
+
+        verify(mockInstantiator, times(1)).init(same(service));
     }
+
 }

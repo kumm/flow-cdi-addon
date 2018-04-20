@@ -7,24 +7,24 @@ import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
-import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import com.wcs.vaadin.flow.cdi.internal.VaadinServiceScopedContext;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
+import org.apache.deltaspike.core.util.ProxyUtils;
 import org.apache.deltaspike.core.util.context.ContextualStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.spi.BeanManager;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.wcs.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 
 /**
  * Servlet service implementation for Vaadin CDI.
- *
- * This class automatically finds and initializes a CDI {@link Instantiator}.
+ * <p>
+ * This class creates and initializes a
+ * @{@link VaadinServiceEnabled} CDI {@link Instantiator} contextual instance.
  *
  * @see CdiVaadinServlet
  */
@@ -49,29 +49,35 @@ public class CdiVaadinServletService extends VaadinServletService {
     @Override
     protected Optional<Instantiator> loadInstantiators()
             throws ServiceException {
-        Optional<Instantiator> spiInstantiator = super.loadInstantiators();
-        final List<Instantiator> cdiInstantiators
-                = new BeanLookup<>(beanManager, Instantiator.class, SERVICE)
-                .select(bean -> !bean.getBeanClass().equals(CdiInstantiator.class))
-                .filter(instantiator -> instantiator.init(this))
-                .collect(Collectors.toList());
-        if (spiInstantiator.isPresent() && !cdiInstantiators.isEmpty()) {
+        Instantiator cdiInstantiator;
+        try {
+            cdiInstantiator = new BeanLookup<>(beanManager, Instantiator.class, SERVICE)
+                    .single()
+                    .ifAmbiguous(e -> {
+                        throw e;
+                    })
+                    .get();
+        } catch (AmbiguousResolutionException e) {
             throw new ServiceException(
-                    "Cannot init VaadinService because there are multiple eligible "
-                            + "instantiator implementations: Java SPI registered instantiator "
-                            + spiInstantiator.get()
-                            + " and CDI instantiator beans: "
-                            + cdiInstantiators);
+                    "Cannot init VaadinService because there are multiple "
+                            + "eligible CDI instantiator beans.", e);
         }
-        if (!spiInstantiator.isPresent() && cdiInstantiators.isEmpty()) {
-            Instantiator defaultInstantiator =
-                    new BeanLookup<>(beanManager, CdiInstantiator.class, SERVICE)
-                            .single().get();
-            defaultInstantiator.init(this);
-            return Optional.of(defaultInstantiator);
+        if (cdiInstantiator != null) {
+            if (!cdiInstantiator.init(this)) {
+                Class unproxiedClass =
+                        ProxyUtils.getUnproxiedClass(cdiInstantiator.getClass());
+                throw new ServiceException(
+                        "Cannot init VaadinService because "
+                                + unproxiedClass.getName() + " CDI bean init()"
+                                + " returned false.");
+            }
+        } else {
+            throw new ServiceException(
+                    "Cannot init VaadinService "
+                            + "because no CDI instantiator bean found."
+            );
         }
-        return spiInstantiator.isPresent() ? spiInstantiator
-                : cdiInstantiators.stream().findFirst();
+        return Optional.of(cdiInstantiator);
     }
 
     private static Logger getLogger() {

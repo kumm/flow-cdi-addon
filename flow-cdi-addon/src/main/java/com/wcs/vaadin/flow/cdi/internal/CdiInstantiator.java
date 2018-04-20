@@ -25,7 +25,9 @@ import static com.wcs.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
  * Default CDI instantiator.
  * <p>
  * Can be overridden by a @{@link VaadinServiceEnabled}
- * {@link com.vaadin.flow.di.Instantiator} CDI bean.
+ * CDI Alternative/Specializes, or can be customized with a Decorator.
+ *
+ * @see Instantiator
  */
 @VaadinServiceScoped
 @VaadinServiceEnabled
