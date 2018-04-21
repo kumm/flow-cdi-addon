@@ -16,8 +16,8 @@ import java.util.function.Predicate;
  * An instance of this servlet is automatically deployed by
  * {@link CdiServletDeployer} if no VaadinServlet is deployed based on web.xml or
  * Servlet 3.0 annotations. A subclass of this servlet and of
- * {@link CdiVaadinServletService} can be used and explicitly deployed to customize e.g.
- * system messages, in which case
+ * {@link CdiVaadinServletService} can be used and explicitly deployed
+ * to customize it, in which case
  * {@link #createServletService(DeploymentConfiguration)} must call
  * service.init() .
  */

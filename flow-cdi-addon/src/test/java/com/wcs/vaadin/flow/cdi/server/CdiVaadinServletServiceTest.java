@@ -1,8 +1,9 @@
 package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.di.Instantiator;
-import com.vaadin.flow.server.ServiceException;
-import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.*;
+import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
+import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -37,47 +38,50 @@ public class CdiVaadinServletServiceTest {
     }
 
     @Test
-    public void testCdiInstantiatorCreated() throws ServiceException {
-        service = new TestCdiVaadinServletService(beanManager);
-        VaadinService.setCurrent(service);
-        service.init();
+    public void testInstantiatorCreated() throws ServiceException {
+        initService(beanManager);
         final Instantiator instantiator = service.getInstantiator();
         assertThat(instantiator, instanceOf(CdiInstantiator.class));
     }
 
-    @Test(expected = ServiceException.class)
-    public void testAmbiguousCdiInstantiatorThrowsException() throws ServiceException {
-        BeanManager mockBm = mock(BeanManager.class);
-        HashSet<Bean<?>> beans = new HashSet<Bean<?>>() {{
-            add(mock(Bean.class));
-            add(mock(Bean.class));
-        }};
-        when(mockBm.getBeans(eq(Instantiator.class), same(BeanLookup.SERVICE)))
-                .thenReturn(beans);
-        //noinspection unchecked
-        when(mockBm.resolve(same(beans)))
-                .thenThrow(AmbiguousResolutionException.class);
-        service = new TestCdiVaadinServletService(mockBm);
-        service.init();
-
-        verify(mockBm, times(1)).resolve(same(beans));
+    @Test
+    public void testSystemMessagesProviderCreated() throws ServiceException {
+        initService(beanManager);
+        SystemMessagesProvider systemMessagesProvider =
+                service.getSystemMessagesProvider();
+        assertThat(systemMessagesProvider,
+                instanceOf(CdiSystemMessagesProvider.class));
     }
 
     @Test(expected = ServiceException.class)
-    public void testNoCdiInstantiatorThrowsException() throws ServiceException {
-        BeanManager mockBm = mock(BeanManager.class);
-        HashSet<Bean<?>> beans = new HashSet<>();
-        when(mockBm.getBeans(eq(Instantiator.class), same(BeanLookup.SERVICE)))
-                .thenReturn(beans);
-        service = new TestCdiVaadinServletService(mockBm);
-        service.init();
+    public void testAmbiguousSystemMessagesProviderThrowsException()
+            throws ServiceException {
+        assertAmbiguousThrowsException(SystemMessagesProvider.class);
     }
 
     @Test(expected = ServiceException.class)
-    public void testInitReturnsFalseThrowsException() throws ServiceException {
-        BeanManager mockBm = mock(BeanManager.class);
-        service = new TestCdiVaadinServletService(mockBm);
+    public void testAmbiguousInstantiatorThrowsException()
+            throws ServiceException {
+        assertAmbiguousThrowsException(Instantiator.class);
+    }
 
+    @Test(expected = ServiceException.class)
+    public void testWithoutSystemMessagesProviderDefaultInstantiated()
+            throws ServiceException {
+        initServiceWithoutBeanFor(SystemMessagesProvider.class);
+        assertThat(service.getSystemMessagesProvider(),
+                instanceOf(DefaultSystemMessagesProvider.class));
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testNoInstantiatorThrowsException() throws ServiceException {
+        initServiceWithoutBeanFor(Instantiator.class);
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testInstantiatorInitReturnsFalseThrowsException()
+            throws ServiceException {
+        BeanManager mockBm = mock(BeanManager.class);
         final Bean mockBean = mock(Bean.class);
         HashSet<Bean<?>> beans = new HashSet<Bean<?>>() {{
             add(mockBean);
@@ -90,9 +94,53 @@ public class CdiVaadinServletServiceTest {
         when(mockBm.getReference(same(mockBean), eq(Instantiator.class), any()))
                 .thenReturn(mockInstantiator);
         when(mockInstantiator.init(same(service))).thenReturn(false);
-        service.init();
+        initService(mockBm);
 
         verify(mockInstantiator, times(1)).init(same(service));
+    }
+
+    private void initService(BeanManager beanManager) throws ServiceException {
+        service = new TestCdiVaadinServletService(beanManager);
+        VaadinService.setCurrent(service);
+        service.init();
+    }
+
+    private void initServiceWithoutBeanFor(Class<?> type)
+            throws ServiceException {
+        BeanManager mockBm = mock(BeanManager.class);
+        HashSet<Bean<?>> beans = new HashSet<>();
+        when(mockBm.getBeans(eq(type), same(BeanLookup.SERVICE)))
+                .thenReturn(beans);
+        initService(mockBm);
+    }
+
+    private void assertAmbiguousThrowsException(Class<?> type)
+            throws ServiceException {
+        BeanManager mockBm = mock(BeanManager.class);
+        HashSet<Bean<?>> beans = new HashSet<Bean<?>>() {{
+            add(mock(Bean.class));
+            add(mock(Bean.class));
+        }};
+        when(mockBm.getBeans(eq(type), same(BeanLookup.SERVICE)))
+                .thenReturn(beans);
+        //noinspection unchecked
+        when(mockBm.resolve(same(beans)))
+                .thenThrow(AmbiguousResolutionException.class);
+        initService(mockBm);
+
+        verify(mockBm, times(1)).resolve(same(beans));
+    }
+
+    @VaadinServiceEnabled
+    @VaadinServiceScoped
+    public static class CdiSystemMessagesProvider
+            implements SystemMessagesProvider {
+
+        @Override
+        public SystemMessages getSystemMessages(
+                SystemMessagesInfo systemMessagesInfo) {
+            return new CustomizedSystemMessages();
+        }
     }
 
 }

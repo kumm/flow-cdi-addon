@@ -2,10 +2,8 @@ package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.function.DeploymentConfiguration;
-import com.vaadin.flow.server.ServiceException;
-import com.vaadin.flow.server.SessionDestroyEvent;
-import com.vaadin.flow.server.VaadinServlet;
-import com.vaadin.flow.server.VaadinServletService;
+import com.vaadin.flow.server.*;
+import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
 import com.wcs.vaadin.flow.cdi.internal.VaadinServiceScopedContext;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
@@ -23,8 +21,9 @@ import static com.wcs.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 /**
  * Servlet service implementation for Vaadin CDI.
  * <p>
- * This class creates and initializes a
- * @{@link VaadinServiceEnabled} CDI {@link Instantiator} contextual instance.
+ * This class creates and initializes a @{@link VaadinServiceEnabled}
+ * {@link Instantiator}, and
+ * {@link SystemMessagesProvider} contextual instance.
  *
  * @see CdiVaadinServlet
  */
@@ -47,20 +46,15 @@ public class CdiVaadinServletService extends VaadinServletService {
     }
 
     @Override
+    public void init() throws ServiceException {
+        loadSystemMessagesProvider().ifPresent(this::setSystemMessagesProvider);
+        super.init();
+    }
+
+    @Override
     protected Optional<Instantiator> loadInstantiators()
             throws ServiceException {
-        Instantiator cdiInstantiator;
-        try {
-            cdiInstantiator = new BeanLookup<>(beanManager, Instantiator.class, SERVICE)
-                    .ifAmbiguous(e -> {
-                        throw e;
-                    })
-                    .get();
-        } catch (AmbiguousResolutionException e) {
-            throw new ServiceException(
-                    "Cannot init VaadinService because there are multiple "
-                            + "eligible CDI instantiator beans.", e);
-        }
+        Instantiator cdiInstantiator = lookupCdiService(Instantiator.class);
         if (cdiInstantiator != null) {
             if (!cdiInstantiator.init(this)) {
                 Class unproxiedClass =
@@ -77,6 +71,27 @@ public class CdiVaadinServletService extends VaadinServletService {
             );
         }
         return Optional.of(cdiInstantiator);
+    }
+
+    protected Optional<SystemMessagesProvider> loadSystemMessagesProvider()
+            throws ServiceException {
+        final SystemMessagesProvider messagesProvider =
+                lookupCdiService(SystemMessagesProvider.class);
+        return Optional.ofNullable(messagesProvider);
+    }
+
+    protected <T> T lookupCdiService(Class<T> type) throws ServiceException {
+        try {
+            return new BeanLookup<>(beanManager, type, SERVICE)
+                    .ifAmbiguous(e -> {
+                        throw e;
+                    }).get();
+        } catch (AmbiguousResolutionException e) {
+            throw new ServiceException(
+                    "Cannot init VaadinService because there are multiple "
+                            + "eligible CDI " + type.getSimpleName()
+                            + " beans.", e);
+        }
     }
 
     private static Logger getLogger() {
