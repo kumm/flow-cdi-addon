@@ -82,10 +82,7 @@ public class CdiVaadinServletService extends VaadinServletService {
 
     protected <T> T lookupCdiService(Class<T> type) throws ServiceException {
         try {
-            return new BeanLookup<>(beanManager, type, SERVICE)
-                    .ifAmbiguous(e -> {
-                        throw e;
-                    }).get();
+            return new BeanLookup<>(beanManager, type, SERVICE).get();
         } catch (AmbiguousResolutionException e) {
             throw new ServiceException(
                     "Cannot init VaadinService because there are multiple "

@@ -28,7 +28,9 @@ public class BeanLookup<T> {
     private final Annotation[] qualifiers;
     private UnsatisfiedHandler unsatisfiedHandler = () -> {};
     private Supplier<T> fallback = () -> null;
-    private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {};
+    private Consumer<AmbiguousResolutionException> ambiguousHandler = e -> {
+        throw e;
+    };
 
     public final static Annotation SERVICE = new ServiceLiteral();
     private final static Annotation[] ANY = new Annotation[]{new AnyLiteral()};

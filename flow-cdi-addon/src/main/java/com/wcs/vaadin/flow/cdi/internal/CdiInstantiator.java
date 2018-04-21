@@ -85,6 +85,8 @@ public class CdiInstantiator implements Instantiator {
                     .ifAmbiguous(e ->
                             getLogger().warn("Found more beans for I18N. "
                                     + CANNOT_USE_CDI_BEANS_FOR_I18_N, e));
+        } else {
+            lookup.ifAmbiguous(e -> { });
         }
         return lookup
                 .fallbackTo(delegate::getI18NProvider)
