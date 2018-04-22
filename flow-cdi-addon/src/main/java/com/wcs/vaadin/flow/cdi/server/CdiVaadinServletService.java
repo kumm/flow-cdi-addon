@@ -2,10 +2,7 @@ package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.function.DeploymentConfiguration;
-import com.vaadin.flow.server.ServiceException;
-import com.vaadin.flow.server.SessionDestroyEvent;
-import com.vaadin.flow.server.SystemMessagesProvider;
-import com.vaadin.flow.server.VaadinServletService;
+import com.vaadin.flow.server.*;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
@@ -37,12 +34,13 @@ public class CdiVaadinServletService extends VaadinServletService {
                                    BeanManager beanManager) {
         super(servlet, configuration);
         this.beanManager = beanManager;
-        addSessionDestroyListener(this::sessionDestroy);
     }
 
     @Override
     public void init() throws ServiceException {
-        loadSystemMessagesProvider().ifPresent(this::setSystemMessagesProvider);
+        lookupCdiService(SystemMessagesProvider.class)
+                .ifPresent(this::setSystemMessagesProvider);
+        addSessionDestroyListener(this::sessionDestroy);
         super.init();
     }
 
@@ -54,11 +52,13 @@ public class CdiVaadinServletService extends VaadinServletService {
     @Override
     protected Optional<Instantiator> loadInstantiators()
             throws ServiceException {
-        Instantiator cdiInstantiator = lookupCdiService(Instantiator.class);
-        if (cdiInstantiator != null) {
-            if (!cdiInstantiator.init(this)) {
+        Optional<Instantiator> instantiatorOptional =
+                lookupCdiService(Instantiator.class);
+        if (instantiatorOptional.isPresent()) {
+            Instantiator instantiator = instantiatorOptional.get();
+            if (!instantiator.init(this)) {
                 Class unproxiedClass =
-                        ProxyUtils.getUnproxiedClass(cdiInstantiator.getClass());
+                        ProxyUtils.getUnproxiedClass(instantiator.getClass());
                 throw new ServiceException(
                         "Cannot init VaadinService because "
                                 + unproxiedClass.getName() + " CDI bean init()"
@@ -70,19 +70,13 @@ public class CdiVaadinServletService extends VaadinServletService {
                             + "because no CDI instantiator bean found."
             );
         }
-        return Optional.of(cdiInstantiator);
+        return instantiatorOptional;
     }
 
-    protected Optional<SystemMessagesProvider> loadSystemMessagesProvider()
-            throws ServiceException {
-        final SystemMessagesProvider messagesProvider =
-                lookupCdiService(SystemMessagesProvider.class);
-        return Optional.ofNullable(messagesProvider);
-    }
-
-    protected <T> T lookupCdiService(Class<T> type) throws ServiceException {
+    protected <T> Optional<T> lookupCdiService(Class<T> type) throws ServiceException {
         try {
-            return new BeanLookup<>(beanManager, type, SERVICE).get();
+            T instance = new BeanLookup<>(beanManager, type, SERVICE).get();
+            return Optional.ofNullable(instance);
         } catch (AmbiguousResolutionException e) {
             throw new ServiceException(
                     "Cannot init VaadinService because there are multiple "
