@@ -2,13 +2,14 @@ package com.wcs.vaadin.flow.cdi.server;
 
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.function.DeploymentConfiguration;
-import com.vaadin.flow.server.*;
+import com.vaadin.flow.server.ServiceException;
+import com.vaadin.flow.server.SessionDestroyEvent;
+import com.vaadin.flow.server.SystemMessagesProvider;
+import com.vaadin.flow.server.VaadinServletService;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
-import com.wcs.vaadin.flow.cdi.internal.VaadinServiceScopedContext;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
 import org.apache.deltaspike.core.util.ProxyUtils;
-import org.apache.deltaspike.core.util.context.ContextualStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,25 +31,24 @@ import static com.wcs.vaadin.flow.cdi.internal.BeanLookup.SERVICE;
 public class CdiVaadinServletService extends VaadinServletService {
 
     private final BeanManager beanManager;
-    private final ContextualStorage contextualStorage;
 
-    public CdiVaadinServletService(VaadinServlet servlet,
+    public CdiVaadinServletService(CdiVaadinServlet servlet,
                                    DeploymentConfiguration configuration,
                                    BeanManager beanManager) {
         super(servlet, configuration);
         this.beanManager = beanManager;
-        contextualStorage = new ContextualStorage(beanManager, true, true);
         addSessionDestroyListener(this::sessionDestroy);
-    }
-
-    public ContextualStorage getContextualStorage() {
-        return contextualStorage;
     }
 
     @Override
     public void init() throws ServiceException {
         loadSystemMessagesProvider().ifPresent(this::setSystemMessagesProvider);
         super.init();
+    }
+
+    @Override
+    public CdiVaadinServlet getServlet() {
+        return (CdiVaadinServlet) super.getServlet();
     }
 
     @Override
@@ -110,9 +110,4 @@ public class CdiVaadinServletService extends VaadinServletService {
         VaadinSessionScopedContext.destroy(event.getSession());
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        VaadinServiceScopedContext.destroy(this);
-    }
 }

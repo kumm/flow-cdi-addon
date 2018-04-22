@@ -23,7 +23,7 @@ public class ServiceUnderTestContext implements UnderTestContext {
     @Override
     public void destroy() {
         if (service != null) {
-            service.destroy();
+            service.getServlet().destroy();
         }
     }
 

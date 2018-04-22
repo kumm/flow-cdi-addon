@@ -1,8 +1,8 @@
 package com.wcs.vaadin.flow.cdi.internal;
 
-import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServlet;
 import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
-import com.wcs.vaadin.flow.cdi.server.CdiVaadinServletService;
+import com.wcs.vaadin.flow.cdi.server.CdiVaadinServlet;
 import org.apache.deltaspike.core.util.context.AbstractContext;
 import org.apache.deltaspike.core.util.context.ContextualStorage;
 
@@ -17,9 +17,14 @@ public class VaadinServiceScopedContext extends AbstractContext {
     }
 
     @Override
-    protected ContextualStorage getContextualStorage(Contextual<?> contextual, boolean createIfNotExist) {
-        VaadinService vaadinService = VaadinService.getCurrent();
-        return ((CdiVaadinServletService) vaadinService).getContextualStorage();
+    protected ContextualStorage getContextualStorage(
+            Contextual<?> contextual, boolean createIfNotExist) {
+        CdiVaadinServlet servlet = (CdiVaadinServlet) VaadinServlet.getCurrent();
+        if (servlet != null) {
+            return servlet.getContextualStorage();
+        } else {
+            return CdiVaadinServlet.getCurrentContextualStorage();
+        }
     }
 
     @Override
@@ -29,11 +34,10 @@ public class VaadinServiceScopedContext extends AbstractContext {
 
     @Override
     public boolean isActive() {
-        VaadinService service = VaadinService.getCurrent();
-        return service instanceof CdiVaadinServletService;
+        VaadinServlet servlet = VaadinServlet.getCurrent();
+        return servlet instanceof CdiVaadinServlet
+                || (servlet == null
+                    && CdiVaadinServlet.getCurrentContextualStorage() != null);
     }
 
-    public static void destroy(CdiVaadinServletService service) {
-        AbstractContext.destroyAllActive(service.getContextualStorage());
-    }
 }
