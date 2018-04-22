@@ -18,6 +18,8 @@ public class TestSystemMessagesProvider implements SystemMessagesProvider {
         CustomizedSystemMessages messages = new CustomizedSystemMessages();
         messages.setSessionExpiredNotificationEnabled(true);
         messages.setSessionExpiredMessage(EXPIRED_BY_TEST);
+        // On Wildfy this message pops up after session invalidate button.
+        messages.setCookiesDisabledMessage(EXPIRED_BY_TEST);
         return messages;
     }
 }
