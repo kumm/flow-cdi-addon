@@ -7,7 +7,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 import javax.annotation.PostConstruct;
 
-@Route("")
+@Route("system-messages")
 public class SystemMessagesProviderView extends Div {
 
     public static final String EXPIRE = "EXPIRE";

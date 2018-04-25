@@ -40,8 +40,14 @@ public class CdiVaadinServletService extends VaadinServletService {
     public void init() throws ServiceException {
         lookupCdiService(SystemMessagesProvider.class)
                 .ifPresent(this::setSystemMessagesProvider);
+        addSessionInitListener(this::sessionInit);
         addSessionDestroyListener(this::sessionDestroy);
         super.init();
+    }
+
+    private void sessionInit(SessionInitEvent sessionInitEvent) {
+        VaadinSession session = sessionInitEvent.getSession();
+        getInstance(ErrorHandler.class).ifPresent(session::setErrorHandler);
     }
 
     @Override
@@ -75,14 +81,18 @@ public class CdiVaadinServletService extends VaadinServletService {
 
     protected <T> Optional<T> lookupCdiService(Class<T> type) throws ServiceException {
         try {
-            T instance = new BeanLookup<>(beanManager, type, SERVICE).get();
-            return Optional.ofNullable(instance);
+            return getInstance(type);
         } catch (AmbiguousResolutionException e) {
             throw new ServiceException(
                     "Cannot init VaadinService because there are multiple "
                             + "eligible CDI " + type.getSimpleName()
                             + " beans.", e);
         }
+    }
+
+    private <T> Optional<T> getInstance(Class<T> type) {
+        T instance = new BeanLookup<>(beanManager, type, SERVICE).get();
+        return Optional.ofNullable(instance);
     }
 
     private static Logger getLogger() {
