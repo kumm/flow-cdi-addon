@@ -14,4 +14,10 @@
         <module>flow-cdi-itest</module>
     </modules>
 
+    <repositories>
+        <repository>
+            <id>flow</id>
+            <url>https://maven.vaadin.com/vaadin-prereleases/</url>
+        </repository>
+    </repositories>
 </project>
