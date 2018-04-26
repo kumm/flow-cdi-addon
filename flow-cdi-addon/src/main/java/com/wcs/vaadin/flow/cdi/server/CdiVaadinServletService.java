@@ -48,6 +48,7 @@ public class CdiVaadinServletService extends VaadinServletService {
     private void sessionInit(SessionInitEvent sessionInitEvent) {
         VaadinSession session = sessionInitEvent.getSession();
         getInstance(ErrorHandler.class).ifPresent(session::setErrorHandler);
+        beanManager.fireEvent(sessionInitEvent);
     }
 
     @Override
@@ -100,7 +101,8 @@ public class CdiVaadinServletService extends VaadinServletService {
                 .getCanonicalName());
     }
 
-    private void sessionDestroy(SessionDestroyEvent event) {
+    private void sessionDestroy(SessionDestroyEvent sessionDestroyEvent) {
+        beanManager.fireEvent(sessionDestroyEvent);
         if (VaadinSessionScopedContext.guessContextIsUndeployed()) {
             // Happens on tomcat when it expires sessions upon undeploy.
             // beanManager.getPassivationCapableBean returns null for passivation id,
@@ -111,7 +113,7 @@ public class CdiVaadinServletService extends VaadinServletService {
             return;
         }
         getLogger().debug("VaadinSessionScopedContext destroy");
-        VaadinSessionScopedContext.destroy(event.getSession());
+        VaadinSessionScopedContext.destroy(sessionDestroyEvent.getSession());
     }
 
 }

@@ -1,9 +1,8 @@
 package com.wcs.vaadin.flow.cdi.itest;
 
-import com.wcs.vaadin.flow.cdi.itest.service.ErrorHandlerView;
-import com.wcs.vaadin.flow.cdi.itest.service.SystemMessagesProviderView;
-import com.wcs.vaadin.flow.cdi.itest.service.TestErrorHandler;
-import com.wcs.vaadin.flow.cdi.itest.service.TestSystemMessagesProvider;
+import com.vaadin.flow.server.SessionDestroyEvent;
+import com.vaadin.flow.server.SessionInitEvent;
+import com.wcs.vaadin.flow.cdi.itest.service.*;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
@@ -22,7 +21,8 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
                 SystemMessagesProviderView.class,
                 TestSystemMessagesProvider.class,
                 ErrorHandlerView.class,
-                TestErrorHandler.class);
+                TestErrorHandler.class,
+                EventObserver.class);
     }
 
     @Before
@@ -36,6 +36,23 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
         click(SystemMessagesProviderView.EXPIRE);
         click(SystemMessagesProviderView.ACTION);
         assertSystemMessageEquals(TestSystemMessagesProvider.EXPIRED_BY_TEST);
+    }
+
+    @Test
+    public void testSessionEventObserver() throws IOException {
+        String initCounter = SessionInitEvent.class.getSimpleName();
+        String destroyCounter = SessionDestroyEvent.class.getSimpleName();
+        Assert.assertEquals(0, getCount(initCounter));
+        Assert.assertEquals(0, getCount(destroyCounter));
+
+        firstWindow.manage().deleteAllCookies();
+        open("system-messages");
+        Assert.assertEquals(1, getCount(initCounter));
+        Assert.assertEquals(0, getCount(destroyCounter));
+
+        click(SystemMessagesProviderView.EXPIRE);
+        Assert.assertEquals(1, getCount(initCounter));
+        Assert.assertEquals(1, getCount(destroyCounter));
     }
 
     @Test
