@@ -36,19 +36,53 @@ public class CdiVaadinServletService extends VaadinServletService {
         this.beanManager = beanManager;
     }
 
-    @Override
-    public void init() throws ServiceException {
-        lookupCdiService(SystemMessagesProvider.class)
-                .ifPresent(this::setSystemMessagesProvider);
-        addSessionInitListener(this::sessionInit);
-        addSessionDestroyListener(this::sessionDestroy);
-        super.init();
+    /**
+     * Static listener class,
+     * to avoid registering the whole service instance.
+     */
+    private static class Listener
+            implements SessionInitListener, SessionDestroyListener {
+
+        private final BeanManager beanManager;
+
+        public Listener(BeanManager beanManager) {
+            this.beanManager = beanManager;
+        }
+
+        @Override
+        public void sessionInit(SessionInitEvent sessionInitEvent)
+                throws ServiceException {
+            VaadinSession session = sessionInitEvent.getSession();
+            lookup(beanManager, ErrorHandler.class)
+                    .ifPresent(session::setErrorHandler);
+            beanManager.fireEvent(sessionInitEvent);
+        }
+
+        @Override
+        public void sessionDestroy(SessionDestroyEvent sessionDestroyEvent) {
+            beanManager.fireEvent(sessionDestroyEvent);
+            if (VaadinSessionScopedContext.guessContextIsUndeployed()) {
+                // Happens on tomcat when it expires sessions upon undeploy.
+                // beanManager.getPassivationCapableBean returns null for passivation id,
+                // so we would get an NPE from AbstractContext.destroyAllActive
+                getLogger().warn("VaadinSessionScoped context does not exist. " +
+                        "Maybe application is undeployed." +
+                        " Can't destroy VaadinSessionScopedContext.");
+                return;
+            }
+            getLogger().debug("VaadinSessionScopedContext destroy");
+            VaadinSessionScopedContext.destroy(sessionDestroyEvent.getSession());
+        }
     }
 
-    private void sessionInit(SessionInitEvent sessionInitEvent) {
-        VaadinSession session = sessionInitEvent.getSession();
-        getInstance(ErrorHandler.class).ifPresent(session::setErrorHandler);
-        beanManager.fireEvent(sessionInitEvent);
+    @Override
+    public void init() throws ServiceException {
+        lookup(beanManager, SystemMessagesProvider.class)
+                .ifPresent(this::setSystemMessagesProvider);
+        Listener listener = new Listener(beanManager);
+        addSessionInitListener(listener);
+        addSessionDestroyListener(listener);
+        super.init();
     }
 
     @Override
@@ -60,7 +94,7 @@ public class CdiVaadinServletService extends VaadinServletService {
     protected Optional<Instantiator> loadInstantiators()
             throws ServiceException {
         Optional<Instantiator> instantiatorOptional =
-                lookupCdiService(Instantiator.class);
+                lookup(beanManager, Instantiator.class);
         if (instantiatorOptional.isPresent()) {
             Instantiator instantiator = instantiatorOptional.get();
             if (!instantiator.init(this)) {
@@ -80,40 +114,21 @@ public class CdiVaadinServletService extends VaadinServletService {
         return instantiatorOptional;
     }
 
-    protected <T> Optional<T> lookupCdiService(Class<T> type) throws ServiceException {
+    protected static <T> Optional<T> lookup(BeanManager beanManager,
+                                            Class<T> type) throws ServiceException {
         try {
-            return getInstance(type);
+            T instance = new BeanLookup<>(beanManager, type, SERVICE).get();
+            return Optional.ofNullable(instance);
         } catch (AmbiguousResolutionException e) {
             throw new ServiceException(
-                    "Cannot init VaadinService because there are multiple "
-                            + "eligible CDI " + type.getSimpleName()
+                    "There are multiple eligible CDI " + type.getSimpleName()
                             + " beans.", e);
         }
-    }
-
-    private <T> Optional<T> getInstance(Class<T> type) {
-        T instance = new BeanLookup<>(beanManager, type, SERVICE).get();
-        return Optional.ofNullable(instance);
     }
 
     private static Logger getLogger() {
         return LoggerFactory.getLogger(CdiVaadinServletService.class
                 .getCanonicalName());
-    }
-
-    private void sessionDestroy(SessionDestroyEvent sessionDestroyEvent) {
-        beanManager.fireEvent(sessionDestroyEvent);
-        if (VaadinSessionScopedContext.guessContextIsUndeployed()) {
-            // Happens on tomcat when it expires sessions upon undeploy.
-            // beanManager.getPassivationCapableBean returns null for passivation id,
-            // so we would get an NPE from AbstractContext.destroyAllActive
-            getLogger().warn("VaadinSessionScoped context does not exist. " +
-                    "Maybe application is undeployed." +
-                    " Can't destroy VaadinSessionScopedContext.");
-            return;
-        }
-        getLogger().debug("VaadinSessionScopedContext destroy");
-        VaadinSessionScopedContext.destroy(sessionDestroyEvent.getSession());
     }
 
 }
