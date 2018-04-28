@@ -40,19 +40,24 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
     }
 
     @Test
-    public void testSessionEventObserver() throws IOException {
+    public void testSessionInitEventObserved() throws IOException {
         String initCounter = SessionInitEvent.class.getSimpleName();
-        String destroyCounter = SessionDestroyEvent.class.getSimpleName();
         Assert.assertEquals(0, getCount(initCounter));
-        Assert.assertEquals(0, getCount(destroyCounter));
 
         firstWindow.manage().deleteAllCookies();
         open("system-messages");
         Assert.assertEquals(1, getCount(initCounter));
+    }
+
+    @Test
+    public void testSessionDestroyEventObserved() throws IOException {
+        String destroyCounter = SessionDestroyEvent.class.getSimpleName();
+        Assert.assertEquals(0, getCount(destroyCounter));
+
+        open("system-messages");
         Assert.assertEquals(0, getCount(destroyCounter));
 
         click(SystemMessagesProviderView.EXPIRE);
-        Assert.assertEquals(1, getCount(initCounter));
         Assert.assertEquals(1, getCount(destroyCounter));
     }
 
@@ -65,7 +70,7 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
     }
 
     @Test
-    public void testInternalErrorMessageCustomized() throws IOException {
+    public void testInternalErrorMessageCustomized() {
         open("error-handler");
         click(ErrorHandlerView.FAIL);
         assertSystemMessageEquals(TestSystemMessagesProvider.FAILED_BY_TEST);
@@ -73,10 +78,11 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
 
     @Test
     public void testErrorHandlerCustomized() throws IOException {
+        String counter = TestErrorHandler.class.getSimpleName();
+        Assert.assertEquals(0, getCount(counter));
         open("error-handler");
         click(ErrorHandlerView.FAIL);
-        Assert.assertEquals(1,
-                getCount(TestErrorHandler.class.getSimpleName()));
+        Assert.assertEquals(1, getCount(counter));
     }
 
     private void assertSystemMessageEquals(String expected) {
