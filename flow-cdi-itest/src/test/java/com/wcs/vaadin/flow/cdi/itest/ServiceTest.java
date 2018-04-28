@@ -2,6 +2,7 @@ package com.wcs.vaadin.flow.cdi.itest;
 
 import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.SessionInitEvent;
+import com.vaadin.flow.server.UIInitEvent;
 import com.wcs.vaadin.flow.cdi.itest.service.*;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -53,6 +54,14 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
         click(SystemMessagesProviderView.EXPIRE);
         Assert.assertEquals(1, getCount(initCounter));
         Assert.assertEquals(1, getCount(destroyCounter));
+    }
+
+    @Test
+    public void testUIInitEventObserved() throws IOException {
+        String uiInitCounter = UIInitEvent.class.getSimpleName();
+        Assert.assertEquals(0, getCount(uiInitCounter));
+        open("system-messages");
+        Assert.assertEquals(1, getCount(uiInitCounter));
     }
 
     @Test

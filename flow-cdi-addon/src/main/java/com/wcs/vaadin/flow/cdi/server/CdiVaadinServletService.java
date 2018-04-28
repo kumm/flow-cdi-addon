@@ -41,11 +41,11 @@ public class CdiVaadinServletService extends VaadinServletService {
      * to avoid registering the whole service instance.
      */
     private static class Listener
-            implements SessionInitListener, SessionDestroyListener {
+            implements SessionInitListener, SessionDestroyListener, UIInitListener {
 
         private final BeanManager beanManager;
 
-        public Listener(BeanManager beanManager) {
+        Listener(BeanManager beanManager) {
             this.beanManager = beanManager;
         }
 
@@ -73,6 +73,11 @@ public class CdiVaadinServletService extends VaadinServletService {
             getLogger().debug("VaadinSessionScopedContext destroy");
             VaadinSessionScopedContext.destroy(sessionDestroyEvent.getSession());
         }
+
+        @Override
+        public void uiInit(UIInitEvent event) {
+            beanManager.fireEvent(event);
+        }
     }
 
     @Override
@@ -82,6 +87,7 @@ public class CdiVaadinServletService extends VaadinServletService {
         Listener listener = new Listener(beanManager);
         addSessionInitListener(listener);
         addSessionDestroyListener(listener);
+        addUIInitListener(listener);
         super.init();
     }
 
