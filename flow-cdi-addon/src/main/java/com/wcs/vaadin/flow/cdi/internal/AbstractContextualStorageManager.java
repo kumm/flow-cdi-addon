@@ -8,7 +8,6 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,22 +16,27 @@ import java.util.Map;
  * This class is responsible for
  * - creating, and providing the ContextualStorage for a context key
  * - destroying ContextualStorages
- *
- * Concurrency handling ignored intentionally.
- * Locking of VaadinSession is the responsibility of Vaadin Framework.
  */
+@SuppressWarnings("CdiManagedBeanInconsistencyInspection")
 abstract class AbstractContextualStorageManager<K> implements Serializable  {
     @Inject
     private BeanManager beanManager;
-    private final Map<K, ContextualStorage> storageMap = new HashMap<>();
+    private final Map<K, ContextualStorage> storageMap;
+
+    protected AbstractContextualStorageManager(Map<K, ContextualStorage> storageMap) {
+        this.storageMap = storageMap;
+    }
 
     protected ContextualStorage getContextualStorage(K key, boolean createIfNotExist) {
-        ContextualStorage storage = storageMap.get(key);
-        if (storage == null && createIfNotExist) {
-            storage = new VaadinContextualStorage(beanManager);
-            storageMap.put(key, storage);
+        if (createIfNotExist) {
+            return storageMap.computeIfAbsent(key, this::newContextualStorage);
+        } else {
+            return storageMap.get(key);
         }
-        return storage;
+    }
+
+    protected ContextualStorage newContextualStorage(K key) {
+        return new VaadinContextualStorage(beanManager);
     }
 
     protected boolean isExist(K key) {

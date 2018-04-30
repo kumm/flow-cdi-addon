@@ -29,19 +29,23 @@ import java.util.Locale;
 public class InstantiatorTest {
 
     @Inject
+    private BeanManager beanManager;
+
+    @Inject
     @VaadinServiceEnabled
-    CdiInstantiator instantiator;
+    private CdiInstantiator instantiator;
 
     @Inject
-    SomeCdiBean singleton;
+    private SomeCdiBean singleton;
 
     @Inject
-    ServiceInitObserver serviceInitObserver;
+    private ServiceInitObserver serviceInitObserver;
 
-    ServiceUnderTestContext serviceUnderTestContext = new ServiceUnderTestContext();
+    private ServiceUnderTestContext serviceUnderTestContext;
 
     @Before
     public void setUp() {
+        serviceUnderTestContext = new ServiceUnderTestContext(beanManager);
         serviceUnderTestContext.activate();
         CdiVaadinServletService service = serviceUnderTestContext.getService();
         Assert.assertTrue(instantiator.init(service));

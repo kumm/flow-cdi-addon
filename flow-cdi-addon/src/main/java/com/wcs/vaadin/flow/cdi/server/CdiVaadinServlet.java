@@ -3,8 +3,6 @@ package com.wcs.vaadin.flow.cdi.server;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.*;
 import com.wcs.vaadin.flow.cdi.internal.CdiUI;
-import org.apache.deltaspike.core.util.context.AbstractContext;
-import org.apache.deltaspike.core.util.context.ContextualStorage;
 
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
@@ -33,60 +31,42 @@ public class CdiVaadinServlet extends VaadinServlet {
     @Inject
     private BeanManager beanManager;
 
-    private static final ThreadLocal<ContextualStorage> currentContextualStorage =
-            new ThreadLocal<>();
+    private static final ThreadLocal<String> servletName = new ThreadLocal<>();
 
-    private ContextualStorage contextualStorage;
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        try {
+            servletName.set(servletConfig.getServletName());
+            super.init(servletConfig);
+        } finally {
+            servletName.set(null);
+        }
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            servletName.set(getServletName());
+            super.service(request, response);
+        } finally {
+            servletName.set(null);
+        }
+    }
 
     /**
+     * Name of the Vaadin servlet for the current thread.
+     * <p>
      * Until VaadinService appears in CurrentInstance,
-     * it have to be used instead of the non-static getter.
+     * it have to be used to get the servlet name.
      * <p>
      * This method is meant for internal use only.
      *
      * @see VaadinServlet#getCurrent()
-     * @return contextual storage for
-     * @{@link com.wcs.vaadin.flow.cdi.VaadinServiceScoped} context.
+     * @return currently processing vaadin servlet name
      */
-    public static ContextualStorage getCurrentContextualStorage() {
-        return currentContextualStorage.get();
-    }
-
-    @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-        initContextualStorage();
-        try {
-            currentContextualStorage.set(contextualStorage);
-            super.init(servletConfig);
-        } finally {
-            currentContextualStorage.set(null);
-        }
-    }
-
-    protected void initContextualStorage() {
-        contextualStorage = new ContextualStorage(beanManager, true, true);
-    }
-
-    /**
-     * Contextual storage for
-     * @{@link com.wcs.vaadin.flow.cdi.VaadinServiceScoped} context.
-     * <p>
-     * This method is meant for internal use only.
-     *
-     * @return contextual storage
-     */
-    public ContextualStorage getContextualStorage() {
-        return contextualStorage;
-    }
-
-    @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            currentContextualStorage.set(contextualStorage);
-            super.service(request, response);
-        } finally {
-            currentContextualStorage.set(null);
-        }
+    public static String getCurrentServletName() {
+        return servletName.get();
     }
 
     @Override
@@ -117,9 +97,4 @@ public class CdiVaadinServlet extends VaadinServlet {
         }
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        AbstractContext.destroyAllActive(contextualStorage);
-    }
 }

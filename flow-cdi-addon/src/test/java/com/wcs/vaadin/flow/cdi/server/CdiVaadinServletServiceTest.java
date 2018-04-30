@@ -4,6 +4,7 @@ import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.server.*;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
 import com.wcs.vaadin.flow.cdi.VaadinServiceScoped;
+import com.wcs.vaadin.flow.cdi.contexts.ServiceUnderTestContext;
 import com.wcs.vaadin.flow.cdi.internal.BeanLookup;
 import com.wcs.vaadin.flow.cdi.internal.CdiInstantiator;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -34,7 +35,7 @@ public class CdiVaadinServletServiceTest {
 
     @After
     public void tearDown() {
-        VaadinService.setCurrent(null);
+        new ServiceUnderTestContext(beanManager).tearDownAll();
     }
 
     @Test
@@ -100,8 +101,9 @@ public class CdiVaadinServletServiceTest {
     }
 
     private void initService(BeanManager beanManager) throws ServiceException {
-        service = new TestCdiVaadinServletService(beanManager);
-        VaadinService.setCurrent(service);
+        ServiceUnderTestContext serviceUnderTestContext = new ServiceUnderTestContext(beanManager);
+        serviceUnderTestContext.activate();
+        service = serviceUnderTestContext.getService();
         service.init();
     }
 

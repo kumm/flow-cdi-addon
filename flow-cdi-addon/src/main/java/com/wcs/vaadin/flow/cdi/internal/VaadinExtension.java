@@ -18,11 +18,13 @@ import java.util.List;
  */
 public class VaadinExtension implements Extension {
 
+    private VaadinServiceScopedContext serviceScopedContext;
     private UIScopedContext uiScopedContext;
     private RouteScopedContext routeScopedContext;
     private List<String> normalScopedComponentWarnings = new LinkedList<>();
 
     public void initializeContexts(@Observes AfterDeploymentValidation adv, BeanManager beanManager) {
+        serviceScopedContext.init(beanManager);
         uiScopedContext.init(beanManager);
         routeScopedContext.init(beanManager);
     }
@@ -59,8 +61,8 @@ public class VaadinExtension implements Extension {
             getLogger().error(sb.toString());
         }
 
-        addContext(afterBeanDiscovery,
-                new VaadinServiceScopedContext(beanManager), null);
+        serviceScopedContext = new VaadinServiceScopedContext(beanManager);
+        addContext(afterBeanDiscovery,serviceScopedContext,null);
         addContext(afterBeanDiscovery,
                 new VaadinSessionScopedContext(beanManager), null);
         uiScopedContext = new UIScopedContext(beanManager);

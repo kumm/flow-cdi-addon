@@ -88,6 +88,7 @@ public class CdiVaadinServletService extends VaadinServletService {
         addSessionInitListener(listener);
         addSessionDestroyListener(listener);
         addUIInitListener(listener);
+        addServiceDestroyListener(this::fireCdiDestroyEvent);
         super.init();
     }
 
@@ -129,6 +130,18 @@ public class CdiVaadinServletService extends VaadinServletService {
             throw new ServiceException(
                     "There are multiple eligible CDI " + type.getSimpleName()
                             + " beans.", e);
+        }
+    }
+
+    private void fireCdiDestroyEvent(ServiceDestroyEvent event) {
+        try {
+            beanManager.fireEvent(event);
+        } catch (Exception e) {
+            // During application shutdown on TomEE 7,
+            // beans are lost at this point.
+            // Does not throw an exception, but catch anything just to be sure.
+            getLogger().warn("Error at destroy event distribution with CDI.",
+                    e);
         }
     }
 

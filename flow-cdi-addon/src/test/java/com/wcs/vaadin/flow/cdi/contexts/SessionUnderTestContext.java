@@ -5,6 +5,8 @@ import com.vaadin.flow.server.VaadinSessionState;
 import com.wcs.vaadin.flow.cdi.internal.VaadinSessionScopedContext;
 import org.mockito.Mockito;
 
+import javax.enterprise.inject.spi.CDI;
+
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +17,8 @@ public class SessionUnderTestContext implements UnderTestContext {
 
     private void mockSession() {
         if (serviceUnderTestContext == null) {
-            serviceUnderTestContext = new ServiceUnderTestContext();
+            serviceUnderTestContext = new ServiceUnderTestContext(
+                    CDI.current().getBeanManager());
             serviceUnderTestContext.activate();
         }
         session = Mockito.mock(TestSession.class,
