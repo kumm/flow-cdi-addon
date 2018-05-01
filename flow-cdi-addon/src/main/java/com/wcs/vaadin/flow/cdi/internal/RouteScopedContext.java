@@ -1,7 +1,6 @@
 package com.wcs.vaadin.flow.cdi.internal;
 
 import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.wcs.vaadin.flow.cdi.NormalUIScoped;
 import com.wcs.vaadin.flow.cdi.RouteScopeOwner;
@@ -16,6 +15,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static javax.enterprise.event.Reception.IF_EXISTS;
@@ -24,15 +24,18 @@ public class RouteScopedContext extends AbstractContext {
 
     private ContextualStorageManager contextManager;
     private KeyConverter keyConverter;
+    private Supplier<Boolean> isUIContextActive;
 
     public RouteScopedContext(BeanManager beanManager) {
         super(beanManager);
     }
 
-    public void init(BeanManager beanManager) {
+    public void init(BeanManager beanManager,
+                     Supplier<Boolean> isUIContextActive) {
         contextManager = BeanProvider
                 .getContextualReference(beanManager, ContextualStorageManager.class, false);
         keyConverter = new KeyConverter(beanManager);
+        this.isUIContextActive = isUIContextActive;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class RouteScopedContext extends AbstractContext {
 
     @Override
     public boolean isActive() {
-        return UI.getCurrent() != null;
+        return isUIContextActive.get();
     }
 
     @Override

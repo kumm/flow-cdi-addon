@@ -26,7 +26,7 @@ public class VaadinExtension implements Extension {
     public void initializeContexts(@Observes AfterDeploymentValidation adv, BeanManager beanManager) {
         serviceScopedContext.init(beanManager);
         uiScopedContext.init(beanManager);
-        routeScopedContext.init(beanManager);
+        routeScopedContext.init(beanManager, uiScopedContext::isActive);
     }
 
     void processManagedBean(@Observes ProcessManagedBean pmb,
