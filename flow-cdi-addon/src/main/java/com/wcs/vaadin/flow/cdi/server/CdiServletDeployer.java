@@ -46,7 +46,7 @@ public class CdiServletDeployer implements ServletContainerInitializer {
         ServletRegistration rootServlet = findRootServlet(ctx);
         if (rootServlet != null) {
             // ServletDeployer will log automatic servlet registration skipped.
-            // Even if we registered succesfully the CDI servlet.
+            // Even if we registered successfully the CDI servlet.
             return;
         }
 
