@@ -1,5 +1,6 @@
 package com.wcs.vaadin.flow.cdi.contexts;
 
+import com.vaadin.flow.router.Route;
 import com.wcs.vaadin.flow.cdi.RouteScoped;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ public class RouteContextPseudoTest extends AbstractContextTest<RouteContextPseu
     }
 
     @RouteScoped
+    @Route("")
     public static class RouteScopedTestBean extends TestBean {
     }
 

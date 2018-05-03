@@ -3,6 +3,8 @@ package com.wcs.vaadin.flow.cdi.internal;
 import com.vaadin.flow.component.Component;
 import com.wcs.vaadin.flow.cdi.NormalRouteScoped;
 import com.wcs.vaadin.flow.cdi.NormalUIScoped;
+import com.wcs.vaadin.flow.cdi.RouteScopeOwner;
+import com.wcs.vaadin.flow.cdi.RouteScoped;
 import org.apache.deltaspike.core.util.context.AbstractContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,8 @@ import javax.enterprise.inject.spi.*;
 import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.wcs.vaadin.flow.cdi.internal.InconsistentDeploymentException.ID.ROUTE_SCOPE_MISSING_BESIDE_OWNER;
 
 /**
  * CDI Extension needed to register Vaadin scopes to the runtime.
@@ -41,6 +45,21 @@ public class VaadinExtension implements Extension {
                     + String.format("%-20s", beanScope.getSimpleName()) + " "
                     + beanClass.getCanonicalName());
         }
+
+        RouteScopedBeanValidator validator = new RouteScopedBeanValidator();
+        if (beanScope.equals(RouteScoped.class)
+                || beanScope.equals(NormalRouteScoped.class)) {
+            validator.validate(bean);
+        } else {
+            if (bean.getQualifiers().stream()
+                    .anyMatch(ann -> ann instanceof RouteScopeOwner)) {
+                throw new InconsistentDeploymentException(
+                        ROUTE_SCOPE_MISSING_BESIDE_OWNER,
+                        "Bean from " + bean.getBeanClass()
+                                + " qualified by @RouteScopeOwner "
+                                + "have to be @RouteScoped or @NormalRouteScoped");
+            }
+        }
     }
 
     void afterBeanDiscovery(
@@ -62,7 +81,7 @@ public class VaadinExtension implements Extension {
         }
 
         serviceScopedContext = new VaadinServiceScopedContext(beanManager);
-        addContext(afterBeanDiscovery,serviceScopedContext,null);
+        addContext(afterBeanDiscovery, serviceScopedContext, null);
         addContext(afterBeanDiscovery,
                 new VaadinSessionScopedContext(beanManager), null);
         uiScopedContext = new UIScopedContext(beanManager);

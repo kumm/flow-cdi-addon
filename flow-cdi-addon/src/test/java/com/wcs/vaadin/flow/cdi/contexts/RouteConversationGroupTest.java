@@ -3,6 +3,7 @@ package com.wcs.vaadin.flow.cdi.contexts;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.Route;
 import com.wcs.vaadin.flow.cdi.RouteScopeOwner;
 import com.wcs.vaadin.flow.cdi.RouteScoped;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -104,6 +105,7 @@ public class RouteConversationGroupTest {
     }
 
     @RouteScoped
+    @Route("group1")
     public static class Group1 extends HasElementTestBean  {
     }
 
@@ -113,6 +115,7 @@ public class RouteConversationGroupTest {
     }
 
     @RouteScoped
+    @Route("group2")
     public static class Group2 extends HasElementTestBean {
     }
 
