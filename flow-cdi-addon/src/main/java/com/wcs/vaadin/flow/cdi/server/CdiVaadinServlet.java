@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 
 /**
  * Servlet to create CdiVaadinServletService.
@@ -81,13 +79,12 @@ public class CdiVaadinServlet extends VaadinServlet {
     @Override
     protected DeploymentConfiguration createDeploymentConfiguration(
             Properties initParameters) {
-        return new CdiDeploymentConfiguration(getClass(), initParameters,
-                this::scanForResources);
+        return new CdiDeploymentConfiguration(getClass(), initParameters);
     }
 
     private static class CdiDeploymentConfiguration extends DefaultDeploymentConfiguration {
-        public CdiDeploymentConfiguration(Class<?> systemPropertyBaseClass, Properties initParameters, BiConsumer<String, Predicate<String>> resourceScanner) {
-            super(systemPropertyBaseClass, initParameters, resourceScanner);
+        public CdiDeploymentConfiguration(Class<?> systemPropertyBaseClass, Properties initParameters) {
+            super(systemPropertyBaseClass, initParameters);
         }
 
         @Override

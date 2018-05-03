@@ -2,6 +2,7 @@ package com.wcs.vaadin.flow.cdi.polymertemplate;
 
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.component.polymertemplate.TemplateParser;
+import com.vaadin.flow.server.VaadinService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,7 +19,7 @@ public class TestTemplateParser implements TemplateParser {
     }
 
     @Override
-    public TemplateData getTemplateContent(Class<? extends PolymerTemplate<?>> clazz, String tag) {
+    public TemplateData getTemplateContent(Class<? extends PolymerTemplate<?>> aClass, String s, VaadinService vaadinService) {
         try {
             Document document = Jsoup.parse(content,
                     StandardCharsets.UTF_8.name(), "");
@@ -27,6 +28,5 @@ public class TestTemplateParser implements TemplateParser {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

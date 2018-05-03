@@ -28,7 +28,7 @@ public class TestTemplate extends PolymerTemplate<TemplateModel> {
     Event<InputChangeEvent> setTextEventTrigger;
 
     public TestTemplate() {
-        input.addChangeListener(event ->
+        input.addValueChangeListener(event ->
                 setTextEventTrigger.fire(new InputChangeEvent(input.getValue())));
     }
 
