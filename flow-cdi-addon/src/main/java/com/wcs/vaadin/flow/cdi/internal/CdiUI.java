@@ -1,39 +1,54 @@
 package com.wcs.vaadin.flow.cdi.internal;
 
-import com.vaadin.flow.component.PollEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinRequest;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
-import javax.enterprise.event.Event;
 import javax.enterprise.inject.Vetoed;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
 @Vetoed
 public class CdiUI extends UI {
 
     @Inject
-    private Event<AfterNavigationEvent> afterNavigationTrigger;
+    private BeanManager beanManager;
 
-    @Inject
-    private Event<BeforeLeaveEvent> beforeLeaveTrigger;
+    @ListenerPriority(-100)
+    private static class NavigationListener
+            implements AfterNavigationListener, BeforeEnterListener, BeforeLeaveListener {
 
-    @Inject
-    private Event<BeforeEnterEvent> beforeEnterTrigger;
+        final BeanManager beanManager;
 
-    @Inject
-    private Event<PollEvent> pollTrigger;
+        private NavigationListener(BeanManager beanManager) {
+            this.beanManager = beanManager;
+        }
+
+        @Override
+        public void afterNavigation(AfterNavigationEvent event) {
+            beanManager.fireEvent(event);
+        }
+
+        @Override
+        public void beforeEnter(BeforeEnterEvent event) {
+            beanManager.fireEvent(event);
+        }
+
+        @Override
+        public void beforeLeave(BeforeLeaveEvent event) {
+            beanManager.fireEvent(event);
+        }
+    }
 
     @Override
     protected void init(VaadinRequest request) {
         BeanProvider.injectFields(this);
-        addAfterNavigationListener(afterNavigationTrigger::fire);
-        addBeforeLeaveListener(beforeLeaveTrigger::fire);
-        addBeforeEnterListener(beforeEnterTrigger::fire);
-        addPollListener(pollTrigger::fire);
+        NavigationListener listener = new NavigationListener(beanManager);
+        addAfterNavigationListener(listener);
+        addBeforeLeaveListener(listener);
+        addBeforeEnterListener(listener);
+        addPollListener(beanManager::fireEvent);
         super.init(request);
     }
 
