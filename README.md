@@ -72,13 +72,16 @@ Normal, and non-normal meaning can be found at UI scopes.
 
 ## Services
 
-Some Vaadin service interface can be implemented as a CDI bean.
+Some Vaadin service interfaces can be implemented as a CDI bean.
 
 - I18NProvider
 - Instantiator
+- SystemMessagesProvider
+- ErrorHandler
 
-Implementations have to be qualifed by 
-[@VaadinServiceEnabled](flow-cdi-addon/src/main/java/com/wcs/vaadin/flow/cdi/VaadinServiceEnabled.java).
+Beans have to be qualifed by 
+[@VaadinServiceEnabled](flow-cdi-addon/src/main/java/com/wcs/vaadin/flow/cdi/VaadinServiceEnabled.java) 
+to be picked up automatically.
 
 ## Vaadin Events
 
@@ -89,18 +92,30 @@ Following events fired as a CDI event:
 - BeforeEnterEvent
 - BeforeLeaveEvent
 - AfterNavigationEvent
+- UIInitEvent
+- SessionInitEvent
+- SessionDestroyEvent
+- ServiceDestroyEvent
 
 You just need a CDI observer to handle them.
 
 ## Known issues and limitations
+
+### ServiceDestroyEvent
+
+During application shutdown it is implementation specific, 
+whether it works with CDI or not. 
+But according to servlet specs, 
+a servlet destroy ( it means a service destroy too ) can happen in 
+other circumstances too.
 
 ### Push with CDI
 
 An incoming websocket message does not count as a request in CDI. 
 Need a http request to have request, session, and conversation context. 
 
-So you should use WEBSOCKET_XHR ( or LONG_POLLING ) transport, otherwise
-you lost these contexts in event handlers.
+So you should use WEBSOCKET_XHR (it is the default), or LONG_POLLING 
+transport, otherwise you lost these contexts in event handlers.
 
 In background threads these contexts are not active regardless of push.
 
@@ -112,7 +127,7 @@ Using producers, or excluding the bean class from types with ```@Typed``` causes
 ### Instantiator and CDI Qualifiers
 
 As you can see at component instantiation, beans looked up by bean type. 
-The API can not provide qualifiers, so lookup is done with @ANY.
+The API can not provide qualifiers, so lookup is done with ```@Any```.
 
 # Credits
 
