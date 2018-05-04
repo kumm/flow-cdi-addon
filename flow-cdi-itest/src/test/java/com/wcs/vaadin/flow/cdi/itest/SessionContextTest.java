@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SessionContextTest extends AbstractCDIIntegrationTest {
-    @Deployment
+    @Deployment(testable = false)
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("session-context",
                 SessionContextView.class);

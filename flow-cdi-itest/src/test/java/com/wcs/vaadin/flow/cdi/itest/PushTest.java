@@ -19,7 +19,7 @@ import java.lang.annotation.Annotation;
 
 public class PushTest extends AbstractCDIIntegrationTest {
 
-    @Deployment
+    @Deployment(testable = false)
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("push", webArchive
                 -> webArchive.addPackage(PushComponent.class.getPackage()));

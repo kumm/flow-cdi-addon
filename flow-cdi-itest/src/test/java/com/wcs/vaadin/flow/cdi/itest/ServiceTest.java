@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class ServiceTest extends AbstractCDIIntegrationTest {
 
-    @Deployment
+    @Deployment(testable = false)
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("services",
                 SystemMessagesProviderView.class,

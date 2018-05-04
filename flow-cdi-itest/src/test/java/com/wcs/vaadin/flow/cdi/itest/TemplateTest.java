@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TemplateTest extends AbstractCDIIntegrationTest {
 
-    @Deployment
+    @Deployment(testable = false)
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("templates",
                 archive -> archive

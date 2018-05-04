@@ -1,8 +1,8 @@
 package com.wcs.vaadin.flow.cdi.itest;
 
 import com.wcs.vaadin.flow.cdi.itest.service.InstantiatorAlternative;
-import com.wcs.vaadin.flow.cdi.itest.service.InstantiatorDecorator;
 import com.wcs.vaadin.flow.cdi.itest.service.InstantiatorCustomizedView;
+import com.wcs.vaadin.flow.cdi.itest.service.InstantiatorDecorator;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -15,14 +15,14 @@ import static org.junit.Assert.assertEquals;
 
 public class InstantiatorCustomizeTest extends AbstractCDIIntegrationTest {
 
-    @Deployment(name = "decorator")
+    @Deployment(name = "decorator", testable = false)
     public static WebArchive decoratorDeployment() {
         return ArchiveProvider.createWebArchive("instantiator-decorator-test",
                 InstantiatorDecorator.class,
                 InstantiatorCustomizedView.class);
     }
 
-    @Deployment(name = "alternative")
+    @Deployment(name = "alternative", testable = false)
     public static WebArchive alternativeDeployment() {
         return ArchiveProvider.createWebArchive("instantiator-alternative-test",
                 InstantiatorAlternative.class,

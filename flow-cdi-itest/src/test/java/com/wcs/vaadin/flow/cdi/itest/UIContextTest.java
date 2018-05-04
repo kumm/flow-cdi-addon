@@ -15,7 +15,7 @@ public class UIContextTest extends AbstractCDIIntegrationTest {
 
     private String uiId;
 
-    @Deployment
+    @Deployment(testable = false)
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("ui-context",
                 UIContextRootView.class,

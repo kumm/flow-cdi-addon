@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 
 public class SmokeTest extends AbstractCDIIntegrationTest {
 
-    @Deployment(name = "noncdi")
+    @Deployment(name = "noncdi", testable = false)
     public static WebArchive createCdiServletDisabledDeployment() {
         return ArchiveProvider.createWebArchive("noncdi-test",
                 CdiView.class, CdiUITestView.class)
@@ -24,7 +24,7 @@ public class SmokeTest extends AbstractCDIIntegrationTest {
                         .getResource("disablecdi-web.xml"), "web.xml");
     }
 
-    @Deployment(name = "cdi")
+    @Deployment(name = "cdi", testable = false)
     public static WebArchive createCdiServletEnabledDeployment() {
         return ArchiveProvider.createWebArchive("cdi-test",
                 CdiView.class, CdiUITestView.class);

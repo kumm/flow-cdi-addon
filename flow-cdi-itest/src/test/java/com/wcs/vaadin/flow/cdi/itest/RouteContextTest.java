@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class RouteContextTest extends AbstractCDIIntegrationTest {
     private String uiId;
 
-    @Deployment
+    @Deployment(testable = false)
     public static WebArchive deployment() {
         return ArchiveProvider.createWebArchive("route-context", webArchive ->
                 webArchive.addPackage(MasterView.class.getPackage()));
