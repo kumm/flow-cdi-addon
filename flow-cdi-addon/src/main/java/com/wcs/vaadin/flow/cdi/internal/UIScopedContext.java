@@ -27,7 +27,6 @@ import org.apache.deltaspike.core.util.context.ContextualStorage;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 
 /**
  * UIScopedContext is the context for @UIScoped beans.
@@ -66,7 +65,9 @@ public class UIScopedContext extends AbstractContext {
     public static class ContextualStorageManager extends AbstractContextualStorageManager<Integer> {
 
         public ContextualStorageManager() {
-            super(new HashMap<>());
+            // Session lock checked in VaadinSessionScopedContext while
+            // getting the session attribute of this beans context.
+            super(false);
         }
 
         public ContextualStorage getContextualStorage(boolean createIfNotExist) {

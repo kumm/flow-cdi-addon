@@ -8,7 +8,9 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Base class for manage and store ContextualStorages.
@@ -21,10 +23,16 @@ import java.util.Map;
 abstract class AbstractContextualStorageManager<K> implements Serializable  {
     @Inject
     private BeanManager beanManager;
+    private final boolean concurrent;
     private final Map<K, ContextualStorage> storageMap;
 
-    protected AbstractContextualStorageManager(Map<K, ContextualStorage> storageMap) {
-        this.storageMap = storageMap;
+    protected AbstractContextualStorageManager(boolean concurrent) {
+        if (concurrent) {
+            this.storageMap = new ConcurrentHashMap<>();
+        } else {
+            this.storageMap = new HashMap<>();
+        }
+        this.concurrent = concurrent;
     }
 
     protected ContextualStorage getContextualStorage(K key, boolean createIfNotExist) {
@@ -35,8 +43,13 @@ abstract class AbstractContextualStorageManager<K> implements Serializable  {
         }
     }
 
-    protected ContextualStorage newContextualStorage(K key) {
-        return new VaadinContextualStorage(beanManager);
+    private ContextualStorage newContextualStorage(K key) {
+        // Not required by the spec, but in reality beans are PassivationCapable.
+        // Even for non serializable bean classes.
+        // CDI implementations use PassivationCapable beans,
+        // because injecting non serializable proxies might block serialization of
+        // bean instances in a passivation capable context.
+        return new ContextualStorage(beanManager, concurrent, true);
     }
 
     protected boolean isExist(K key) {

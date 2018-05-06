@@ -13,9 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
 import java.lang.annotation.Annotation;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static javax.enterprise.event.Reception.IF_EXISTS;
 
@@ -62,16 +60,8 @@ public class VaadinServiceScopedContext extends AbstractContext {
     public static class ContextualStorageManager
             extends AbstractContextualStorageManager<String> {
 
-        @Inject
-        private BeanManager beanManager;
-
         public ContextualStorageManager() {
-            super(new ConcurrentHashMap<>());
-        }
-
-        @Override
-        protected ContextualStorage newContextualStorage(String key) {
-            return new ContextualStorage(beanManager, true, true);
+            super(true);
         }
 
         /**

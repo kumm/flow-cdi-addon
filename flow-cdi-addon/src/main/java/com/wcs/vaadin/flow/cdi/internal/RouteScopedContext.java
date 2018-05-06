@@ -13,7 +13,6 @@ import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -60,7 +59,9 @@ public class RouteScopedContext extends AbstractContext {
             extends AbstractContextualStorageManager<Class<?>> {
 
         public ContextualStorageManager() {
-            super(new HashMap<>());
+            // Session lock checked in VaadinSessionScopedContext while
+            // getting the session attribute of this beans context.
+            super(false);
         }
 
         private void onAfterNavigation(@Observes(notifyObserver = IF_EXISTS)
