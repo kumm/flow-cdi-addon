@@ -26,6 +26,11 @@ import java.lang.annotation.*;
  * <p>
  * There are some limitations when not using proxies. Circular referencing (that
  * is, injecting A to B and B to A) will not work.
+ * Injecting into a larger scope will bind the instance
+ * from the currently active smaller scope, and will ignore smaller scope change.
+ * For example after injected into session scope it will point to the same
+ * RouteScoped bean instance ( even it is destroyed ) regardless of UI,
+ * or any navigation change.
  * <p>
  * The sister annotation to this is the {@link NormalRouteScoped}. Both annotations
  * reference the same underlying scope, so it is possible to get both a proxy
