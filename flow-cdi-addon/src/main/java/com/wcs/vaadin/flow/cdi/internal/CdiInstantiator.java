@@ -3,7 +3,6 @@ package com.wcs.vaadin.flow.cdi.internal;
 import com.vaadin.flow.di.DefaultInstantiator;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.i18n.I18NProvider;
-import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.wcs.vaadin.flow.cdi.VaadinServiceEnabled;
@@ -13,7 +12,6 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,12 +37,9 @@ public class CdiInstantiator implements Instantiator {
             = "Falling back to default instantiation.";
 
     private AtomicBoolean i18NLoggingEnabled = new AtomicBoolean(true);
+    private DefaultInstantiator delegate;
     @Inject
     private BeanManager beanManager;
-    @Inject
-    private Event<ServiceInitEvent> serviceInitEventTrigger;
-
-    private DefaultInstantiator delegate;
 
     @Override
     public boolean init(VaadinService service) {
@@ -101,7 +96,7 @@ public class CdiInstantiator implements Instantiator {
     public Stream<VaadinServiceInitListener> getServiceInitListeners() {
         return Stream.concat(
                 delegate.getServiceInitListeners(),
-                Stream.of(serviceInitEventTrigger::fire));
+                Stream.of(beanManager::fireEvent));
     }
 
 }
