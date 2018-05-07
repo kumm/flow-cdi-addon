@@ -23,7 +23,8 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
                 TestSystemMessagesProvider.class,
                 ErrorHandlerView.class,
                 TestErrorHandler.class,
-                EventObserver.class);
+                EventObserver.class,
+                ServiceCustomizer.class);
     }
 
     @Before
@@ -83,6 +84,13 @@ public class ServiceTest extends AbstractCDIIntegrationTest {
         open("error-handler");
         click(ErrorHandlerView.FAIL);
         Assert.assertEquals(1, getCount(counter));
+    }
+
+    @Test
+    public void testServiceCustomized() {
+        open("system-messages");
+        Assert.assertEquals(ServiceCustomizer.APPENDED_TXT,
+                find(ServiceCustomizer.APPENDED_ID).getText());
     }
 
     private void assertSystemMessageEquals(String expected) {
