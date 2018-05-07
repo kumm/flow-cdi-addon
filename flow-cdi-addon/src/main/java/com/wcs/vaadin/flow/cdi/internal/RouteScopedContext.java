@@ -56,7 +56,7 @@ public class RouteScopedContext extends AbstractContext {
 
     @NormalUIScoped
     public static class ContextualStorageManager
-            extends AbstractContextualStorageManager<Class<?>> {
+            extends AbstractContextualStorageManager<Class> {
 
         public ContextualStorageManager() {
             // Session lock checked in VaadinSessionScopedContext while
@@ -66,11 +66,11 @@ public class RouteScopedContext extends AbstractContext {
 
         private void onAfterNavigation(@Observes(notifyObserver = IF_EXISTS)
                                                AfterNavigationEvent event) {
-            Set<? extends Class<?>> activeChain = event.getActiveChain().stream()
+            Set<Class> activeChain = event.getActiveChain().stream()
                     .map(Object::getClass)
                     .collect(Collectors.toSet());
 
-            Set<Class<?>> missingFromChain = getAll().keySet().stream()
+            Set<Class> missingFromChain = getAll().keySet().stream()
                     .filter(routeCompClass -> !activeChain.contains(routeCompClass))
                     .collect(Collectors.toSet());
 
