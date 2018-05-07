@@ -1,6 +1,9 @@
 package com.wcs.vaadin.flow.cdi.itest;
 
-import com.wcs.vaadin.flow.cdi.itest.contexts.*;
+import com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIContextRootView;
+import com.wcs.vaadin.flow.cdi.itest.contexts.ui.UINormalScopedBeanView;
+import com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIScopedLabel;
+import com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIScopedView;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
@@ -8,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.wcs.vaadin.flow.cdi.itest.contexts.UIContextRootView.UIID_LABEL;
+import static com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIContextRootView.UIID_LABEL;
 import static org.junit.Assert.assertEquals;
 
 public class UIContextTest extends AbstractCDIIntegrationTest {
@@ -17,12 +20,8 @@ public class UIContextTest extends AbstractCDIIntegrationTest {
 
     @Deployment(testable = false)
     public static WebArchive deployment() {
-        return ArchiveProvider.createWebArchive("ui-context",
-                UIContextRootView.class,
-                UIScopedView.class,
-                UIScopeInjecterView.class,
-                UINormalScopedBeanView.class,
-                UIScopedLabel.class);
+        return ArchiveProvider.createWebArchive("ui-context", webArchive ->
+                webArchive.addPackage(UIContextRootView.class.getPackage()));
     }
 
     @Before

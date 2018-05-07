@@ -1,4 +1,4 @@
-package com.wcs.vaadin.flow.cdi.itest.contexts;
+package com.wcs.vaadin.flow.cdi.itest.contexts.ui;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
@@ -6,7 +6,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.wcs.vaadin.flow.cdi.itest.contexts.UIScopedLabel.SetTextEvent;
+import com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIScopedLabel.SetTextEvent;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;

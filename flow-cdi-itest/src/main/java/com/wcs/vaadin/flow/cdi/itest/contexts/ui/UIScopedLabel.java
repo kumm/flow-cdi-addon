@@ -1,4 +1,4 @@
-package com.wcs.vaadin.flow.cdi.itest.contexts;
+package com.wcs.vaadin.flow.cdi.itest.contexts.ui;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Label;
