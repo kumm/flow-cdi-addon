@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIContextRootView.EVENT_PAYLOAD;
 import static com.wcs.vaadin.flow.cdi.itest.contexts.ui.UIContextRootView.UIID_LABEL;
 import static org.junit.Assert.assertEquals;
 
@@ -64,7 +65,7 @@ public class UIContextTest extends AbstractCDIIntegrationTest {
     @Test
     public void testObserver() {
         click(UIContextRootView.TRIGGER_EVENT_BTN);
-        assertEquals(UIID_LABEL, find(UIScopedLabel.ID).getText());
+        assertEquals(EVENT_PAYLOAD, find(UIScopedLabel.ID).getText());
     }
 
     @Test

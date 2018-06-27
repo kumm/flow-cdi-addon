@@ -22,6 +22,7 @@ public class UIContextRootView extends Div {
     public static final String UISCOPED_LINK = "uiscoped view";
     public static final String UIID_LABEL = "UIID_LABEL";
     public static final String NORMALSCOPED_LINK = "normalscoped bean view";
+    public static final String EVENT_PAYLOAD = "EVENT_PAYLOAD";
 
     @Inject
     UIScopedLabel label;
@@ -46,7 +47,7 @@ public class UIContextRootView extends Div {
         closeSession.setId(CLOSE_SESSION_BTN);
 
         final NativeButton triggerEvent = new NativeButton("event trigger",
-                event -> setTextEventTrigger.fire(new SetTextEvent(UIID_LABEL)));
+                event -> setTextEventTrigger.fire(new SetTextEvent(EVENT_PAYLOAD)));
         triggerEvent.setId(TRIGGER_EVENT_BTN);
 
         final Div navDiv = new Div(
